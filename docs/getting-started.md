@@ -66,6 +66,19 @@ automation:
 
 Older configuration without this optional section remains valid and receives these defaults only while resolving context; AgentFold does not rewrite it.
 
+Reliability settings are also optional and default only in memory:
+
+```yaml
+reliability:
+  enabled: true
+  maximum_events_per_repository: 1000
+  retain_closed_sessions: 100
+  interrupted_recovery_enabled: true
+```
+
+These settings govern private user-scoped lifecycle events and restart recovery;
+they do not add files to the repository.
+
 ## Check project health
 
 ```bash
@@ -220,6 +233,26 @@ Resume follows active-state checkpoint metadata and validates the selected immut
 Markdown is intended for pasting into a fresh coding-agent session. JSON contains the same bounded `ResumePacket` data for future integrations, with diagnostics kept on standard error. Target options add only a display and instruction-file hint; they do not generate or modify agent instructions. Relative output paths are resolved from the repository root, parent directories may be created inside that boundary, and existing files are never overwritten. A mismatched output extension produces a warning but the requested filename is preserved.
 
 The continuation packet asks the receiving agent to submit concise structured conclusions before ending. Future work may automate report and checkpoint invocation, but resume itself has no adapters, managed processes, watchers, Git hooks, network calls, or model integration.
+
+## Inspect lifecycle reliability
+
+Reliability inspection is read-only and works even when the shared service is
+stopped:
+
+```bash
+pnpm agentfold reliability
+pnpm agentfold reliability --host codex
+pnpm agentfold reliability --task AF-20260724-001
+pnpm agentfold reliability --include-events --limit 25
+pnpm agentfold reliability --json
+```
+
+Only AgentFold-observed sessions are counted. Private bounded history and
+restart-recovery state live outside the repository and never contain prompt
+text, report text, resume packets, source contents, changed paths, full diffs,
+terminal output, environment values, secrets, tokens, or host configuration.
+See [reliability monitoring](reliability.md) for retention, rating rules, and
+restart behavior.
 
 ## Run the local MCP server
 

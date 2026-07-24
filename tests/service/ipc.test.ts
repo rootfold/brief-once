@@ -94,7 +94,16 @@ describe("AgentFold local IPC", () => {
       ? connected.client
       : (undefined as never as AgentFoldServiceClient);
     const status = await client.status();
-    expect(status).toMatchObject({ running: true, processId: 4321, registeredRepositoryCount: 0 });
+    expect(status).toMatchObject({
+      running: true,
+      processId: 4321,
+      registeredRepositoryCount: 0,
+      openSessionCount: 0,
+      interruptedSessionCount: 0,
+      recoveryPendingSessionCount: 0,
+      recentRecoveryFailureCount: 0,
+      reliabilityPersistenceEnabled: false,
+    });
     expect(JSON.stringify(status)).not.toContain(token);
     expect(JSON.stringify(status)).not.toContain(fixture.root);
 

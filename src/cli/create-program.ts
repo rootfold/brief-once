@@ -19,6 +19,7 @@ import { registerServiceCommand } from "./commands/service.js";
 import { registerConnectCommand } from "./commands/connect.js";
 import { registerDisconnectCommand } from "./commands/disconnect.js";
 import { registerVerifyCommand } from "./commands/verify.js";
+import { registerReliabilityCommand } from "./commands/reliability.js";
 import type { StdinReader } from "./input/stdin-reader.js";
 import type { CliOutput } from "./output/cli-output.js";
 
@@ -35,6 +36,8 @@ export interface CreateProgramOptions {
   readonly runService?: Parameters<typeof registerServiceCommand>[1]["runService"];
   readonly connectorOverrides?: Partial<AntigravityConnectorDependencies>;
   readonly codexConnectorOverrides?: Partial<CodexConnectorDependencies>;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 export function createProgram(options: CreateProgramOptions): Command {
@@ -70,6 +73,19 @@ export function createProgram(options: CreateProgramOptions): Command {
   registerCheckpointCommand(program, options, options.output);
   registerFinishCommand(program, options, options.output);
   registerResumeCommand(program, options, options.output);
+  registerReliabilityCommand(
+    program,
+    {
+      version: options.version ?? packageVersion,
+      fileSystem: options.fileSystem,
+      gitRepositoryLocator: options.gitRepositoryLocator,
+      ...(options.reliabilityStateDirectory === undefined
+        ? {}
+        : { reliabilityStateDirectory: options.reliabilityStateDirectory }),
+      ...(options.now === undefined ? {} : { now: options.now }),
+    },
+    options.output,
+  );
   registerServiceCommand(
     program,
     {

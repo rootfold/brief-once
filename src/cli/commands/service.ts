@@ -98,6 +98,15 @@ export function registerServiceCommand(
         writeLine(output, `Repositories: ${status.registeredRepositoryCount}`);
         writeLine(output, `Open sessions: ${status.openSessionCount}`);
         writeLine(output, `Stale/recovery sessions: ${status.staleOrRecoveryPendingSessionCount}`);
+        writeLine(output, `Interrupted sessions: ${status.interruptedSessionCount}`);
+        writeLine(output, `Recovery pending: ${status.recoveryPendingSessionCount}`);
+        writeLine(output, `Recent recovery failures: ${status.recentRecoveryFailureCount}`);
+        writeLine(
+          output,
+          `Reliability persistence: ${
+            status.reliabilityPersistenceEnabled ? "enabled" : "disabled"
+          }`,
+        );
         writeLine(output, `Automation: ${status.automationEnabled ? "enabled" : "disabled"}`);
       }
       if (result.exitCode !== 0)

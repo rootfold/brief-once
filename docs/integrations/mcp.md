@@ -16,6 +16,12 @@
 
 The recommended lifecycle is open session, continue a matching active task or explicitly begin a requested new task, and report meaningful progress. Use `agentfold_finish_task` only when the requested scope is complete, blockers and in-progress entries are resolved, and required validation is honestly reported. The session remains open, so a later substantive request can begin a new task. Use `agentfold_close_session` with checkpointing when work is paused, incomplete, blocked, uncertain, or handed off. Closing after a successful finish creates no extra checkpoint. Reports contain concise engineering conclusions—not private chain of thought, secrets, full conversations, or terminal transcripts.
 
+Successful lifecycle outcomes record only bounded reliability metadata. Shared
+service mode persists interruption recovery across service restarts. Embedded
+mode records basic events through the same host-neutral recorder but cannot
+recover its in-memory sessions after the MCP process exits. Inspect observed
+activity with `agentfold reliability`; no reliability MCP tool is added.
+
 One MCP process serves exactly one Git repository. The workspace is resolved and locked before the first workspace-dependent tool call, tools cannot switch it, and normal results contain only repository-relative paths. AgentFold never stages, commits, resets, stashes, pushes, creates branches, edits hooks, or changes remotes.
 
 ## Run locally

@@ -5,6 +5,11 @@ export {
   resolveAutomationPolicy,
 } from "./core/config/automation-policy.js";
 export type { AutomationPolicy } from "./core/config/automation-policy.js";
+export {
+  reliabilityConfigSchema,
+  reliabilityPolicySchema,
+} from "./core/config/reliability-policy.js";
+export type { ReliabilityConfig, ReliabilityPolicy } from "./core/config/reliability-policy.js";
 export { ConfigValidationError, parseConfig } from "./core/config/parse-config.js";
 export { agentFoldConfigSchema } from "./core/config/schema.js";
 export { serializeConfig } from "./core/config/serialize-config.js";
@@ -34,6 +39,26 @@ export type {
   CanonicalProjectContext,
 } from "./core/context/types.js";
 export type { Diagnostic, DiagnosticSeverity } from "./core/diagnostics/diagnostic.js";
+export {
+  reliabilityEventTypes,
+  reliabilityHosts,
+  reliabilityOutcomes,
+} from "./core/reliability/event-schema.js";
+export type {
+  ReliabilityEvent,
+  ReliabilityEventType,
+  ReliabilityHost,
+  ReliabilityOutcome,
+} from "./core/reliability/event-schema.js";
+export { reliabilityQualities } from "./core/reliability/report-schema.js";
+export type {
+  ReliabilityEventSummary,
+  ReliabilityHostSummary,
+  ReliabilityQuality,
+  ReliabilityReport,
+  ReliabilityWarning,
+} from "./core/reliability/report-schema.js";
+export type { SafePersistentSessionSummary } from "./integrations/reliability/session-journal-schema.js";
 export { formatDiagnostic } from "./core/diagnostics/format-diagnostic.js";
 export type { FileSystem } from "./core/filesystem/filesystem.js";
 export { NodeFileSystem } from "./core/filesystem/node-filesystem.js";

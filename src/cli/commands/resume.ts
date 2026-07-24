@@ -8,10 +8,13 @@ import { commitResumeOutput } from "../../core/resume/output-path.js";
 import { prepareResume } from "../../core/resume/prepare-resume.js";
 import { CliCommandError } from "../command-error.js";
 import type { CliOutput } from "../output/cli-output.js";
+import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
 
 export interface ResumeDependencies {
   readonly fileSystem: FileSystem;
   readonly gitRepositoryLocator: GitRepositoryLocator;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 interface ResumeOptions {
@@ -56,20 +59,53 @@ export function registerResumeCommand(
 
       if (plan.output === undefined) {
         output.write(plan.content);
-        return;
+      } else {
+        const result = await commitResumeOutput(
+          new AtomicTextFileWriter(dependencies.fileSystem),
+          plan.output.destination,
+          plan.output.relativePath,
+          plan.content,
+        );
+        if (result.status === "error") {
+          writeDiagnostics(output, result.diagnostics);
+          throw new CliCommandError(
+            result.exitCode,
+            "AgentFold resume output could not be created",
+          );
+        }
+        for (const diagnostic of result.diagnostics) {
+          output.write(`${formatDiagnostic(diagnostic, { color: output.useColor })}\n`);
+        }
       }
-      const result = await commitResumeOutput(
-        new AtomicTextFileWriter(dependencies.fileSystem),
-        plan.output.destination,
-        plan.output.relativePath,
-        plan.content,
-      );
-      if (result.status === "error") {
-        writeDiagnostics(output, result.diagnostics);
-        throw new CliCommandError(result.exitCode, "AgentFold resume output could not be created");
-      }
-      for (const diagnostic of result.diagnostics) {
-        output.write(`${formatDiagnostic(diagnostic, { color: output.useColor })}\n`);
+      const semanticFreshness =
+        plan.packet.semanticState.freshness === "new"
+          ? "current"
+          : plan.packet.semanticState.freshness === "none"
+            ? "absent"
+            : "reused";
+      for (const eventType of [
+        "resume_packet_requested",
+        `resume_packet_${semanticFreshness}`,
+      ] as const) {
+        for (const item of await recordCliReliability({
+          repositoryRoot: plan.repositoryRoot,
+          fileSystem: dependencies.fileSystem,
+          gitRepositoryLocator: dependencies.gitRepositoryLocator,
+          ...(dependencies.reliabilityStateDirectory === undefined
+            ? {}
+            : { stateDirectory: dependencies.reliabilityStateDirectory }),
+          event: {
+            eventType,
+            taskId: plan.packet.task.taskId,
+            checkpointId: plan.packet.task.checkpointId,
+            semanticRevision: plan.packet.semanticState.revision,
+            semanticFreshness,
+            outcome: "success",
+          },
+          enabled: dependencies.reliabilityPersistence,
+        })) {
+          output.writeError(`${formatDiagnostic(item, { color: output.useColor })}\n`);
+        }
       }
     });
 }

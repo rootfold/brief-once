@@ -107,6 +107,12 @@ Disconnect is preview-only without `--yes`. It rechecks fingerprints and removes
 
 Codex consumes the nine tools: status, bounded canonical context, open session, begin task, progress report, checkpoint, finish, resume packet, and close session. Finish archives completed work and keeps the host session open; close with checkpoint enabled preserves unfinished work for a later Antigravity or other connected client. The connector does not duplicate this logic.
 
+Use `agentfold reliability --host codex` to inspect only Codex sessions that
+actually contacted AgentFold. A missing session cannot be treated as proof that
+Codex ignored the connector. Shared-service restart recovery may preserve the
+latest work as a recovery checkpoint without inventing a report or finishing the
+task.
+
 ## Privacy and current limits
 
 - Local stdio MCP and authenticated local IPC only; no remote MCP or HTTP listener.

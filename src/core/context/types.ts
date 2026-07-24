@@ -1,6 +1,7 @@
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { PackageManager } from "../scanners/types.js";
 import type { AutomationPolicy } from "../config/automation-policy.js";
+import type { ReliabilityPolicy } from "../config/reliability-policy.js";
 
 export interface CanonicalPathGroups {
   readonly source: readonly string[];
@@ -39,6 +40,7 @@ export interface CanonicalProjectContext {
     readonly visibility: "local" | "tracked";
   };
   readonly automation: AutomationPolicy;
+  readonly reliability: ReliabilityPolicy;
   readonly enabledAdapters: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
   readonly diagnostics: readonly Diagnostic[];
 }

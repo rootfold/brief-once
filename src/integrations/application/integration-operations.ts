@@ -9,6 +9,7 @@ import { getResumePacket } from "../mcp/tools/get-resume-packet.js";
 import { getStatus } from "../mcp/tools/get-status.js";
 import { openSession } from "../mcp/tools/open-session.js";
 import { reportProgress } from "../mcp/tools/report-progress.js";
+import { observeIntegrationOperation } from "../reliability/observe-operation.js";
 
 /**
  * Host-neutral application operations shared by embedded MCP and the local
@@ -30,15 +31,27 @@ export interface AgentFoldIntegrationOperations {
 export function createAgentFoldIntegrationOperations(
   context: AgentFoldMcpApplicationContext,
 ): AgentFoldIntegrationOperations {
+  const observed =
+    (operation: string, handler: (input: unknown) => Promise<AgentFoldMcpResult>) =>
+    async (input: unknown): Promise<AgentFoldMcpResult> => {
+      const result = await handler(input);
+      return observeIntegrationOperation(context, operation, input, result);
+    };
   return {
     getStatus: (input) => getStatus(context, input),
     getContext: (input) => getContext(context, input),
-    openSession: (input) => openSession(context, input),
-    beginTask: (input) => beginTask(context, input),
-    reportProgress: (input) => reportProgress(context, input),
-    createCheckpoint: (input) => createCheckpoint(context, input),
-    finishTask: (input) => finishTask(context, input),
-    getResumePacket: (input) => getResumePacket(context, input),
-    closeSession: (input) => closeSession(context, input),
+    openSession: observed("agentfold_open_session", (input) => openSession(context, input)),
+    beginTask: observed("agentfold_begin_task", (input) => beginTask(context, input)),
+    reportProgress: observed("agentfold_report_progress", (input) =>
+      reportProgress(context, input),
+    ),
+    createCheckpoint: observed("agentfold_create_checkpoint", (input) =>
+      createCheckpoint(context, input),
+    ),
+    finishTask: observed("agentfold_finish_task", (input) => finishTask(context, input)),
+    getResumePacket: observed("agentfold_get_resume_packet", (input) =>
+      getResumePacket(context, input),
+    ),
+    closeSession: observed("agentfold_close_session", (input) => closeSession(context, input)),
   };
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { automationConfigSchema } from "./automation-policy.js";
+import { reliabilityConfigSchema } from "./reliability-policy.js";
 import { normalizeRepositoryPath, normalizeRepositoryPaths } from "./repository-path.js";
 
 const nonEmptyString = z.string().trim().min(1, "Must not be empty");
@@ -73,6 +74,7 @@ export const agentFoldConfigSchema = z
     state: stateSchema,
     safety: safetySchema,
     automation: automationConfigSchema.optional(),
+    reliability: reliabilityConfigSchema.optional(),
     adapters: z.record(nonEmptyString, adapterOptionsSchema).optional(),
   })
   .strict();

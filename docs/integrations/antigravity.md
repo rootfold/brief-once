@@ -80,6 +80,11 @@ There is no documented non-interactive API proving UI ingestion. After installat
 
 AgentFold never changes Antigravity permissions or bypasses approval.
 
+Use `agentfold reliability --host antigravity` to inspect only Antigravity
+sessions observed by AgentFold. The report distinguishes normal close, detach,
+timeout, agent switch, and service-restart interruption without claiming
+visibility into Antigravity sessions that never called AgentFold.
+
 ## Removal
 
 ```bash

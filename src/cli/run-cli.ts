@@ -35,6 +35,10 @@ function defaultOptions(options: RunCliOptions): CreateProgramOptions {
     ...(options.codexConnectorOverrides === undefined
       ? {}
       : { codexConnectorOverrides: options.codexConnectorOverrides }),
+    ...(options.reliabilityStateDirectory === undefined
+      ? {}
+      : { reliabilityStateDirectory: options.reliabilityStateDirectory }),
+    reliabilityPersistence: options.reliabilityPersistence ?? options.fileSystem === undefined,
   };
 }
 

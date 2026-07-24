@@ -5,6 +5,7 @@ import type { FileSystem } from "../../core/filesystem/filesystem.js";
 import type { GitInspector } from "../../core/git/git-inspector.js";
 import type { GitRepositoryLocator } from "../../core/git/git-repository-locator.js";
 import type { AgentFoldMcpSessionRegistry } from "./session-registry.js";
+import type { ReliabilityRecorder } from "../reliability/recorder.js";
 
 export interface McpStderrLogger {
   debug(message: string): void;
@@ -22,6 +23,8 @@ export interface AgentFoldMcpApplicationContext {
   readonly sessions: AgentFoldMcpSessionRegistry;
   readonly debug: boolean;
   readonly logger: McpStderrLogger;
+  readonly reliability?: ReliabilityRecorder;
+  readonly reliabilityMode?: "embedded" | "service";
 }
 
 export interface CreateMcpApplicationContextInput {
@@ -34,6 +37,8 @@ export interface CreateMcpApplicationContextInput {
   readonly now?: () => Date;
   readonly debug?: boolean;
   readonly logger: McpStderrLogger;
+  readonly reliability?: ReliabilityRecorder;
+  readonly reliabilityMode?: "embedded" | "service";
 }
 
 export type CreateMcpApplicationContextResult =
@@ -90,6 +95,8 @@ export async function createMcpApplicationContext(
         sessions: input.sessions,
         debug: input.debug ?? false,
         logger: input.logger,
+        ...(input.reliability === undefined ? {} : { reliability: input.reliability }),
+        ...(input.reliabilityMode === undefined ? {} : { reliabilityMode: input.reliabilityMode }),
       },
     };
   } catch {

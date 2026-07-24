@@ -15,6 +15,7 @@ import { CliCommandError } from "../command-error.js";
 import type { StdinReader } from "../input/stdin-reader.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
+import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
 
 export interface ReportDependencies {
   readonly fileSystem: FileSystem;
@@ -22,6 +23,8 @@ export interface ReportDependencies {
   readonly gitInspector: GitInspector;
   readonly stdinReader: StdinReader;
   readonly now?: () => Date;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 interface ReportOptions {
@@ -97,6 +100,28 @@ export function registerReportCommand(
       const completion = diagnostics.at(-1);
       if (completion !== undefined) {
         writeLine(output, formatDiagnostic(completion, { color: output.useColor }));
+      }
+      if (plan.changed) {
+        for (const item of await recordCliReliability({
+          repositoryRoot: plan.repositoryRoot,
+          fileSystem: dependencies.fileSystem,
+          gitRepositoryLocator: dependencies.gitRepositoryLocator,
+          ...(dependencies.reliabilityStateDirectory === undefined
+            ? {}
+            : { stateDirectory: dependencies.reliabilityStateDirectory }),
+          ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
+          event: {
+            eventType: "progress_report_submitted",
+            ...(plan.report.agent === undefined ? {} : { agent: plan.report.agent }),
+            taskId: plan.taskId,
+            semanticRevision: plan.newRevision,
+            outcome: "success",
+            safeMetadata: { reportCount: 1 },
+          },
+          enabled: dependencies.reliabilityPersistence,
+        })) {
+          writeLine(output, formatDiagnostic(item, { color: output.useColor }));
+        }
       }
     });
 }

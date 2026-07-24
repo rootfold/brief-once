@@ -14,12 +14,15 @@ import type { GitRepositoryLocator } from "../../core/git/git-repository-locator
 import { CliCommandError } from "../command-error.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
+import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
 
 export interface CheckpointDependencies {
   readonly fileSystem: FileSystem;
   readonly gitRepositoryLocator: GitRepositoryLocator;
   readonly gitInspector: GitInspector;
   readonly now?: () => Date;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 interface CheckpointOptions {
@@ -97,6 +100,33 @@ export function registerCheckpointCommand(
         throw new CliCommandError(plan.exitCode, "AgentFold checkpoint could not proceed");
       }
       if (plan.status === "duplicate") {
+        for (const item of await recordCliReliability({
+          repositoryRoot: plan.repositoryRoot,
+          fileSystem: dependencies.fileSystem,
+          gitRepositoryLocator: dependencies.gitRepositoryLocator,
+          ...(dependencies.reliabilityStateDirectory === undefined
+            ? {}
+            : { stateDirectory: dependencies.reliabilityStateDirectory }),
+          ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
+          event: {
+            eventType: "checkpoint_duplicate",
+            ...(options.agent === undefined ? {} : { agent: options.agent }),
+            taskId: plan.checkpoint.taskId,
+            checkpointId: plan.checkpoint.checkpointId,
+            semanticRevision: plan.checkpoint.semanticRevision,
+            semanticFreshness:
+              plan.checkpoint.semanticFreshness === "new"
+                ? "current"
+                : plan.checkpoint.semanticFreshness === "none"
+                  ? "absent"
+                  : "reused",
+            outcome: "skipped",
+            reasonCode: "DUPLICATE_FINGERPRINT",
+          },
+          enabled: dependencies.reliabilityPersistence,
+        })) {
+          writeLine(output, formatDiagnostic(item, { color: output.useColor }));
+        }
         return;
       }
       if (plan.status !== "ready") {
@@ -130,6 +160,33 @@ export function registerCheckpointCommand(
       }
       if (result.exitCode !== 0) {
         throw new CliCommandError(result.exitCode, "AgentFold checkpoint could not be persisted");
+      }
+      for (const item of await recordCliReliability({
+        repositoryRoot: plan.repositoryRoot,
+        fileSystem: dependencies.fileSystem,
+        gitRepositoryLocator: dependencies.gitRepositoryLocator,
+        ...(dependencies.reliabilityStateDirectory === undefined
+          ? {}
+          : { stateDirectory: dependencies.reliabilityStateDirectory }),
+        ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
+        event: {
+          eventType: "checkpoint_created",
+          ...(options.agent === undefined ? {} : { agent: options.agent }),
+          taskId: plan.checkpoint.taskId,
+          checkpointId: plan.checkpoint.checkpointId,
+          semanticRevision: plan.checkpoint.semanticRevision,
+          semanticFreshness:
+            plan.checkpoint.semanticFreshness === "new"
+              ? "current"
+              : plan.checkpoint.semanticFreshness === "none"
+                ? "absent"
+                : "reused",
+          outcome: "success",
+          safeMetadata: { checkpointCount: 1, changedPathCount: changedPathCount(plan) },
+        },
+        enabled: dependencies.reliabilityPersistence,
+      })) {
+        writeLine(output, formatDiagnostic(item, { color: output.useColor }));
       }
     });
 }

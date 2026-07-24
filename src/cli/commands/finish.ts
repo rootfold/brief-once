@@ -18,6 +18,7 @@ import { CliCommandError } from "../command-error.js";
 import type { StdinReader } from "../input/stdin-reader.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
+import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
 
 export interface FinishDependencies {
   readonly fileSystem: FileSystem;
@@ -25,6 +26,8 @@ export interface FinishDependencies {
   readonly gitInspector: GitInspector;
   readonly stdinReader: StdinReader;
   readonly now?: () => Date;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 interface FinishOptions {
@@ -123,6 +126,36 @@ export function registerFinishCommand(
       }
       if (result.exitCode !== 0) {
         throw new CliCommandError(result.exitCode, "AgentFold task finish could not be persisted");
+      }
+      for (const item of await recordCliReliability({
+        repositoryRoot: plan.repositoryRoot,
+        fileSystem: dependencies.fileSystem,
+        gitRepositoryLocator: dependencies.gitRepositoryLocator,
+        ...(dependencies.reliabilityStateDirectory === undefined
+          ? {}
+          : { stateDirectory: dependencies.reliabilityStateDirectory }),
+        ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
+        event: {
+          eventType: "task_finished",
+          agent: plan.task.finishingAgent,
+          taskId: plan.task.taskId,
+          checkpointId: plan.task.finalCheckpointId,
+          semanticRevision: plan.task.semanticRevision,
+          outcome: "success",
+          safeMetadata: {
+            checkpointCount: 1,
+            changedPathCount: changedPathCount(plan),
+            validationPassedCount: plan.task.validation.filter(
+              (validation) => validation.status === "passed",
+            ).length,
+            validationFailedCount: plan.task.validation.filter(
+              (validation) => validation.status === "failed",
+            ).length,
+          },
+        },
+        enabled: dependencies.reliabilityPersistence,
+      })) {
+        writeLine(output, formatDiagnostic(item, { color: output.useColor }));
       }
     });
 }

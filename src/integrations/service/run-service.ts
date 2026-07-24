@@ -19,6 +19,7 @@ import {
   writeServiceRuntimeMetadata,
 } from "./runtime-metadata.js";
 import { prepareServiceRuntimeDirectory, type ServicePlatformInput } from "./runtime-directory.js";
+import { prepareReliabilityStateDirectory } from "../reliability/state-directory.js";
 
 type ShutdownSignal = "SIGINT" | "SIGTERM";
 
@@ -42,6 +43,8 @@ export interface RunAgentFoldServiceInput {
   readonly signalSource?: ServiceSignalSource;
   readonly scheduler?: ServiceScheduler;
   readonly leaseMonitorIntervalMilliseconds?: number;
+  readonly reliabilityStateDirectory?: string;
+  readonly generateEventId?: () => string;
 }
 
 export async function runAgentFoldService(input: RunAgentFoldServiceInput): Promise<number> {
@@ -119,6 +122,21 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     input.logger.debug("Confirmed stale Unix socket was removed.");
   }
   const token = (input.generateToken ?? generateCapabilityToken)();
+  let reliabilityStateDirectory: string | undefined;
+  try {
+    reliabilityStateDirectory = await prepareReliabilityStateDirectory({
+      fileSystem: input.fileSystem,
+      gitRepositoryLocator: input.gitRepositoryLocator,
+      ...(input.reliabilityStateDirectory === undefined
+        ? {}
+        : { stateDirectory: input.reliabilityStateDirectory }),
+      ...(input.platform === undefined ? {} : { platform: input.platform }),
+    });
+  } catch {
+    input.logger.error(
+      "AFREL003: Reliability persistence is unavailable; the service will continue without it.",
+    );
+  }
   const startedAt = now().toISOString();
   const processId = input.processId ?? process.pid;
   const coordinator = new AgentFoldServiceCoordinator({
@@ -134,8 +152,11 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     ...(input.generateSessionId === undefined
       ? {}
       : { generateSessionId: input.generateSessionId }),
+    ...(reliabilityStateDirectory === undefined ? {} : { reliabilityStateDirectory }),
+    ...(input.generateEventId === undefined ? {} : { generateEventId: input.generateEventId }),
     onShutdownRequested: () => setImmediate(() => void shutdown()),
   });
+  await coordinator.initialize();
   const service = createAgentFoldService({ endpoint, token, coordinator });
   const monitor = new LeaseMonitor({
     inspect: () => coordinator.recoverStaleSessions(),
@@ -147,12 +168,17 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
   });
   const signalSource = input.signalSource ?? process;
   let stopping = false;
+  let coordinatorStopped = false;
   let serviceStarted = false;
   let metadataWritten = false;
   const shutdown = async (): Promise<void> => {
     if (stopping) return service.closed;
     stopping = true;
     monitor.stop();
+    if (!coordinatorStopped) {
+      coordinatorStopped = true;
+      await coordinator.shutdown();
+    }
     await service.stop();
   };
   const onSignal = (): void => void shutdown();
@@ -186,6 +212,10 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     signalSource.off("SIGINT", onSignal);
     signalSource.off("SIGTERM", onSignal);
     monitor.stop();
+    if (!coordinatorStopped) {
+      coordinatorStopped = true;
+      await coordinator.shutdown();
+    }
     if (metadataWritten) {
       const ownedMetadata = await readServiceRuntimeMetadata(
         input.fileSystem,

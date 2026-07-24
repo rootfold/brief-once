@@ -21,6 +21,8 @@ import type { ServiceMode } from "../service/service-mode.js";
 import { createMcpServiceBridge } from "./service-bridge.js";
 import { workspaceModes, type WorkspaceMode } from "./workspace-mode.js";
 import { McpWorkspaceResolver } from "./workspace-resolver.js";
+import { prepareRepositoryReliability } from "../reliability/create-recorder.js";
+import type { ServicePlatformInput } from "../service/runtime-directory.js";
 
 type ShutdownSignal = "SIGINT" | "SIGTERM";
 
@@ -45,6 +47,8 @@ export interface RunMcpServerInput {
   readonly ensureService?: boolean;
   readonly workspaceMode?: WorkspaceMode;
   readonly runtimeDirectory?: string;
+  readonly reliabilityStateDirectory?: string;
+  readonly platform?: ServicePlatformInput;
   readonly connectServiceClient?: typeof connectAgentFoldServiceClient;
   readonly startService?: typeof startAgentFoldService;
 }
@@ -127,6 +131,25 @@ export async function runMcpServer(input: RunMcpServerInput): Promise<number> {
   const lazy = createLazyMcpOperations({
     resolver,
     create: async (repositoryRoot) => {
+      let reliability;
+      if (serviceConnection?.status !== "connected") {
+        try {
+          reliability = await prepareRepositoryReliability({
+            repositoryRoot,
+            fileSystem: input.fileSystem,
+            gitRepositoryLocator: input.gitRepositoryLocator,
+            ...(input.reliabilityStateDirectory === undefined
+              ? {}
+              : { stateDirectory: input.reliabilityStateDirectory }),
+            ...(input.platform === undefined ? {} : { platform: input.platform }),
+            now,
+          });
+        } catch {
+          input.logger.error(
+            "AFREL003: Reliability persistence is unavailable; MCP lifecycle operations remain available.",
+          );
+        }
+      }
       const resolved = await createMcpApplicationContext({
         workspace: repositoryRoot,
         version: input.version,
@@ -137,6 +160,8 @@ export async function runMcpServer(input: RunMcpServerInput): Promise<number> {
         now,
         debug: input.debug ?? false,
         logger: input.logger,
+        ...(reliability === undefined ? {} : { reliability: reliability.recorder }),
+        reliabilityMode: "embedded",
       });
       if (resolved.status === "error") throw new Error("MCP workspace context failed validation.");
       if (serviceConnection?.status === "connected") {

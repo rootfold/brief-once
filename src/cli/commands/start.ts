@@ -21,12 +21,15 @@ import {
 import { CliCommandError } from "../command-error.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
+import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
 
 export interface StartDependencies {
   readonly fileSystem: FileSystem;
   readonly gitRepositoryLocator: GitRepositoryLocator;
   readonly gitInspector: GitInspector;
   readonly now?: () => Date;
+  readonly reliabilityStateDirectory?: string;
+  readonly reliabilityPersistence?: boolean;
 }
 
 interface StartOptions {
@@ -122,6 +125,24 @@ export function registerStartCommand(
         if (completion !== undefined) {
           writeLine(output);
           writeLine(output, formatDiagnostic(completion, { color: output.useColor }));
+        }
+        for (const item of await recordCliReliability({
+          repositoryRoot: plan.repositoryRoot,
+          fileSystem: dependencies.fileSystem,
+          gitRepositoryLocator: dependencies.gitRepositoryLocator,
+          ...(dependencies.reliabilityStateDirectory === undefined
+            ? {}
+            : { stateDirectory: dependencies.reliabilityStateDirectory }),
+          ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
+          event: {
+            eventType: "task_started",
+            ...(plan.state.startingAgent === null ? {} : { agent: plan.state.startingAgent }),
+            taskId: plan.state.taskId,
+            outcome: "success",
+          },
+          enabled: dependencies.reliabilityPersistence,
+        })) {
+          writeLine(output, formatDiagnostic(item, { color: output.useColor }));
         }
         return;
       }

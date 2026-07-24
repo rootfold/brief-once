@@ -7,7 +7,13 @@ import type { GitInspector } from "../../core/git/git-inspector.js";
 import type { GitRepositoryLocator } from "../../core/git/git-repository-locator.js";
 import { loadActiveState } from "../../core/state/load-active-state.js";
 
-export type AutomaticCheckpointTrigger = "agent_switch" | "heartbeat_timeout";
+export type AutomaticCheckpointTrigger = "agent_switch" | "heartbeat_timeout" | "service_restart";
+
+function reliabilityFreshness(
+  freshness: "new" | "reused" | "none",
+): "current" | "reused" | "absent" {
+  return freshness === "new" ? "current" : freshness === "none" ? "absent" : "reused";
+}
 
 export interface AutomaticCheckpointInput {
   readonly repositoryRoot: string;
@@ -25,6 +31,9 @@ export type AutomaticCheckpointResult =
       readonly status: "created" | "duplicate" | "interval_skipped" | "no_active_task";
       readonly diagnostics: readonly Diagnostic[];
       readonly checkpointId?: string;
+      readonly semanticRevision?: number;
+      readonly semanticFreshness?: "current" | "reused" | "absent";
+      readonly changedPathCount?: number;
     }
   | { readonly status: "failed"; readonly diagnostics: readonly Diagnostic[] };
 
@@ -58,6 +67,7 @@ export async function createAutomaticCheckpoint(
   const latestAt = loaded.state.checkpointHistory.latestCheckpointAt;
   const minimumMilliseconds = input.policy.checkpoints.minimumIntervalSeconds * 1_000;
   if (
+    input.trigger !== "service_restart" &&
     minimumMilliseconds > 0 &&
     latestAt !== null &&
     input.now().getTime() - Date.parse(latestAt) < minimumMilliseconds
@@ -88,6 +98,8 @@ export async function createAutomaticCheckpoint(
     return {
       status: "duplicate",
       checkpointId: plan.checkpoint.checkpointId,
+      semanticRevision: plan.checkpoint.semanticRevision,
+      semanticFreshness: reliabilityFreshness(plan.checkpoint.semanticFreshness),
       diagnostics: [
         ...plan.diagnostics,
         diagnostic("AFSV022", "info", "The automatic checkpoint matched existing history."),
@@ -106,6 +118,12 @@ export async function createAutomaticCheckpoint(
   return {
     status: "created",
     checkpointId: plan.checkpoint.checkpointId,
+    semanticRevision: plan.checkpoint.semanticRevision,
+    semanticFreshness: reliabilityFreshness(plan.checkpoint.semanticFreshness),
+    changedPathCount: Object.values(plan.checkpoint.observedGit.changedPaths).reduce(
+      (count, paths) => count + paths.length,
+      0,
+    ),
     diagnostics: [
       ...committed.diagnostics,
       diagnostic(
@@ -113,7 +131,9 @@ export async function createAutomaticCheckpoint(
         "success",
         input.trigger === "agent_switch"
           ? "An automatic agent-switch checkpoint was created."
-          : "A stale-session recovery checkpoint was created.",
+          : input.trigger === "service_restart"
+            ? "An interrupted-session recovery checkpoint was created."
+            : "A stale-session recovery checkpoint was created.",
       ),
     ],
   };

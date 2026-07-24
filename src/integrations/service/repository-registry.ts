@@ -1,8 +1,8 @@
-import { createHash } from "node:crypto";
 import path from "node:path";
 
 import type { FileSystem } from "../../core/filesystem/filesystem.js";
 import type { GitRepositoryLocator } from "../../core/git/git-repository-locator.js";
+import { canonicalRepositoryId } from "../../core/reliability/repository-identity.js";
 
 export interface RegisteredRepository {
   readonly repositoryId: string;
@@ -24,11 +24,6 @@ export class RepositoryRegistrationError extends Error {
     super(message);
     this.name = "RepositoryRegistrationError";
   }
-}
-
-function repositoryIdentity(root: string, platform: NodeJS.Platform): string {
-  const canonical = platform === "win32" ? root.toLocaleLowerCase("en-US") : root;
-  return createHash("sha256").update(canonical, "utf8").digest("hex").slice(0, 24);
 }
 
 export class RepositoryRegistry {
@@ -54,7 +49,7 @@ export class RepositoryRegistry {
       );
     }
     const absoluteRoot = await this.options.fileSystem.realPath(path.resolve(locatedRoot));
-    const repositoryId = repositoryIdentity(absoluteRoot, this.platform);
+    const repositoryId = canonicalRepositoryId(absoluteRoot, this.platform);
     const existing = this.repositories.get(repositoryId);
     if (existing !== undefined) return this.touch(repositoryId) ?? existing;
     const timestamp = this.now().toISOString();
@@ -67,6 +62,28 @@ export class RepositoryRegistry {
     };
     this.repositories.set(repositoryId, repository);
     return repository;
+  }
+
+  async restore(
+    canonicalRoot: string,
+    expectedRepositoryId: string,
+  ): Promise<RegisteredRepository | undefined> {
+    try {
+      if ((await this.options.fileSystem.entryType(canonicalRoot)) !== "directory")
+        return undefined;
+      const realRoot = await this.options.fileSystem.realPath(path.resolve(canonicalRoot));
+      const locatedRoot = await this.options.gitRepositoryLocator.findRoot(realRoot);
+      if (locatedRoot === undefined) return undefined;
+      const canonicalLocatedRoot = await this.options.fileSystem.realPath(
+        path.resolve(locatedRoot),
+      );
+      if (canonicalRepositoryId(canonicalLocatedRoot, this.platform) !== expectedRepositoryId) {
+        return undefined;
+      }
+      return this.register(canonicalLocatedRoot);
+    } catch {
+      return undefined;
+    }
   }
 
   get(repositoryId: string): RegisteredRepository | undefined {

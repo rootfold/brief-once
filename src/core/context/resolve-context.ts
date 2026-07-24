@@ -1,5 +1,6 @@
 import type { AgentFoldConfig } from "../config/types.js";
 import { resolveAutomationPolicy } from "../config/automation-policy.js";
+import { resolveReliabilityPolicy } from "../config/reliability-policy.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { CanonicalContextDocuments, CanonicalProjectContext } from "./types.js";
 
@@ -37,6 +38,7 @@ export function resolveCanonicalContext(
     },
     state: config.state,
     automation: resolveAutomationPolicy(config.automation),
+    reliability: resolveReliabilityPolicy(config.reliability),
     enabledAdapters: enabledAdapters(config.adapters),
     diagnostics,
   };

@@ -206,7 +206,8 @@ The currently implemented workflow is documented in
 [docs/getting-started.md](docs/getting-started.md), including the local stdio
 [MCP integration](docs/integrations/mcp.md), [shared local service](docs/service.md),
 [Google Antigravity connector](docs/integrations/antigravity.md), and
-[Codex connector](docs/integrations/codex.md).
+[Codex connector](docs/integrations/codex.md). Read-only lifecycle quality and
+restart recovery are documented in [docs/reliability.md](docs/reliability.md).
 
 Install the public CLI globally, or use the scoped package directly through
 `npx`:
@@ -214,6 +215,7 @@ Install the public CLI globally, or use the scoped package directly through
 ```bash
 npm install --global @rootfold/agentfold
 agentfold --version
+agentfold reliability
 
 # One-off execution without a global install
 npx --yes @rootfold/agentfold --version
@@ -615,6 +617,12 @@ paths:
   generated:
     - dist
     - coverage
+
+reliability:
+  enabled: true
+  maximum_events_per_repository: 1000
+  retain_closed_sessions: 100
+  interrupted_recovery_enabled: true
 
 context:
   max_generated_tokens: 1800

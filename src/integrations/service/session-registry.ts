@@ -10,10 +10,10 @@ import type {
   AgentFoldServiceSession,
   AgentFoldServiceSessionCloseReason,
 } from "./service-types.js";
+import type { PersistentSessionRecord } from "../reliability/session-journal-schema.js";
 
 interface InternalServiceSession extends AgentFoldServiceSession {
   readonly leaseDurationSeconds: number;
-  readonly recoveryRetryAt?: string;
 }
 
 export interface OpenServiceSessionInput {
@@ -79,6 +79,10 @@ export class ServiceSessionRegistry {
       leaseExpiresAt: leaseExpiration(now, input.leaseDurationSeconds),
       state: "open",
       leaseDurationSeconds: input.leaseDurationSeconds,
+      lastLifecycleEvent: "session_opened",
+      reportCount: 0,
+      checkpointCount: 0,
+      recoveryAttempts: 0,
     };
     this.sessions.set(sessionId, session);
     return session;
@@ -106,10 +110,14 @@ export class ServiceSessionRegistry {
     return updated;
   }
 
-  attachTask(sessionId: string, taskId: string): AgentFoldServiceSession | undefined {
+  attachTask(
+    sessionId: string,
+    taskId: string,
+    lifecycle: "task_started" | "task_continued" = "task_continued",
+  ): AgentFoldServiceSession | undefined {
     const touched = this.touch(sessionId);
     if (touched === undefined) return undefined;
-    const updated = { ...touched, activeTaskId: taskId };
+    const updated = { ...touched, activeTaskId: taskId, lastLifecycleEvent: lifecycle };
     this.sessions.set(sessionId, {
       ...updated,
       leaseDurationSeconds: this.sessions.get(sessionId)?.leaseDurationSeconds ?? 90,
@@ -133,7 +141,11 @@ export class ServiceSessionRegistry {
   detach(sessionId: string): AgentFoldServiceSession | undefined {
     const current = this.sessions.get(sessionId);
     if (current === undefined || current.state !== "open") return undefined;
-    const updated = { ...current, state: "detached" as const };
+    const updated = {
+      ...current,
+      state: "detached" as const,
+      lastLifecycleEvent: "detached" as const,
+    };
     this.sessions.set(sessionId, updated);
     return updated;
   }
@@ -166,11 +178,12 @@ export class ServiceSessionRegistry {
   markRecoveryPending(
     sessionId: string,
     retryAfterSeconds?: number,
+    reason?: "service_restart" | "heartbeat_timeout",
   ): AgentFoldServiceSession | undefined {
     const current = this.sessions.get(sessionId);
     if (
       current === undefined ||
-      !["open", "detached", "recovery_pending"].includes(current.state)
+      !["open", "detached", "interrupted", "recovery_pending"].includes(current.state)
     ) {
       return undefined;
     }
@@ -182,6 +195,111 @@ export class ServiceSessionRegistry {
       ...current,
       state: "recovery_pending" as const,
       ...(recoveryRetryAt === undefined ? {} : { recoveryRetryAt }),
+      ...(reason === undefined ? {} : { recoveryReason: reason }),
+    };
+    this.sessions.set(sessionId, updated);
+    return updated;
+  }
+
+  recordReport(
+    sessionId: string,
+    taskId: string,
+    semanticRevision?: number,
+  ): AgentFoldServiceSession | undefined {
+    const current = this.sessions.get(sessionId);
+    if (current === undefined || current.state !== "open") return undefined;
+    const updated: InternalServiceSession = {
+      ...current,
+      activeTaskId: taskId,
+      lastLifecycleEvent: "report_submitted",
+      reportCount: current.reportCount + 1,
+      ...(semanticRevision === undefined ? {} : { semanticRevision }),
+    };
+    this.sessions.set(sessionId, updated);
+    return updated;
+  }
+
+  recordCheckpoint(
+    sessionId: string,
+    taskId: string,
+    checkpointId: string,
+    semanticRevision?: number,
+  ): AgentFoldServiceSession | undefined {
+    const current = this.sessions.get(sessionId);
+    if (current === undefined || current.state !== "open") return undefined;
+    const updated: InternalServiceSession = {
+      ...current,
+      activeTaskId: taskId,
+      lastLifecycleEvent: "checkpoint_created",
+      lastCheckpointId: checkpointId,
+      checkpointCount: current.checkpointCount + 1,
+      ...(semanticRevision === undefined ? {} : { semanticRevision }),
+    };
+    this.sessions.set(sessionId, updated);
+    return updated;
+  }
+
+  recordResume(sessionId: string, taskId?: string): AgentFoldServiceSession | undefined {
+    const current = this.sessions.get(sessionId);
+    if (current === undefined || current.state !== "open") return undefined;
+    const updated: InternalServiceSession = {
+      ...current,
+      ...(taskId === undefined ? {} : { activeTaskId: taskId }),
+      lastLifecycleEvent: "resume_requested",
+    };
+    this.sessions.set(sessionId, updated);
+    return updated;
+  }
+
+  restoreInterrupted(record: PersistentSessionRecord, leaseDurationSeconds: number): void {
+    if (this.sessions.has(record.sessionId)) return;
+    this.sessions.set(record.sessionId, {
+      sessionId: record.sessionId,
+      repositoryId: record.repositoryId,
+      client: record.client,
+      agent: record.agent,
+      target: record.host === "codex" || record.host === "antigravity" ? record.host : "generic",
+      openedAt: record.openedAt,
+      lastHeartbeatAt: record.lastHeartbeatAt,
+      leaseExpiresAt: record.leaseExpiresAt,
+      ...(record.taskId === undefined ? {} : { activeTaskId: record.taskId }),
+      state: "interrupted",
+      leaseDurationSeconds,
+      lastLifecycleEvent: record.lastLifecycleEvent,
+      ...(record.lastCheckpointId === undefined
+        ? {}
+        : { lastCheckpointId: record.lastCheckpointId }),
+      ...(record.semanticRevision === undefined
+        ? {}
+        : { semanticRevision: record.semanticRevision }),
+      reportCount: record.reportCount,
+      checkpointCount: record.checkpointCount,
+      recoveryAttempts: record.recoveryAttempts,
+      recoveryRetryAt: record.nextRecoveryAt ?? this.now().toISOString(),
+      recoveryReason: "service_restart",
+    });
+  }
+
+  scheduleRecoveryFailure(
+    sessionId: string,
+    maximumAttempts = 3,
+  ): AgentFoldServiceSession | undefined {
+    const current = this.sessions.get(sessionId);
+    if (current === undefined || !["interrupted", "recovery_pending"].includes(current.state))
+      return undefined;
+    const attempts = Math.min(maximumAttempts, current.recoveryAttempts + 1);
+    const delaySeconds = Math.max(60, 60 * 2 ** Math.max(0, attempts - 1));
+    const withoutRetry = { ...current };
+    delete (withoutRetry as { recoveryRetryAt?: string }).recoveryRetryAt;
+    const updated: InternalServiceSession = {
+      ...withoutRetry,
+      state: "recovery_pending",
+      recoveryAttempts: attempts,
+      ...(attempts >= maximumAttempts
+        ? {}
+        : {
+            recoveryRetryAt: new Date(this.now().getTime() + delaySeconds * 1_000).toISOString(),
+          }),
     };
     this.sessions.set(sessionId, updated);
     return updated;
@@ -206,11 +324,17 @@ export class ServiceSessionRegistry {
         return Date.parse(session.leaseExpiresAt) <= now;
       }
       return (
-        session.state === "recovery_pending" &&
+        (session.state === "interrupted" || session.state === "recovery_pending") &&
         session.recoveryRetryAt !== undefined &&
         Date.parse(session.recoveryRetryAt) <= now
       );
     });
+  }
+
+  journalSessions(): readonly AgentFoldServiceSession[] {
+    return this.all().filter((session) =>
+      ["open", "detached", "interrupted", "recovery_pending"].includes(session.state),
+    );
   }
 
   all(): readonly AgentFoldServiceSession[] {
