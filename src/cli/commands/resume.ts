@@ -54,7 +54,7 @@ export function registerResumeCommand(
       });
       writeDiagnostics(output, plan.diagnostics);
       if (plan.status !== "ready") {
-        throw new CliCommandError(plan.exitCode, "AgentFold resume could not proceed");
+        throw new CliCommandError(plan.exitCode, "BriefOnce resume could not proceed");
       }
 
       if (plan.output === undefined) {
@@ -70,7 +70,7 @@ export function registerResumeCommand(
           writeDiagnostics(output, result.diagnostics);
           throw new CliCommandError(
             result.exitCode,
-            "AgentFold resume output could not be created",
+            "BriefOnce resume output could not be created",
           );
         }
         for (const diagnostic of result.diagnostics) {

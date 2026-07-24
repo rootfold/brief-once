@@ -179,7 +179,7 @@ function analyzeWarnings(
       warnings.push(
         warning(
           "AFRELW009",
-          "This observed session did not complete the recommended AgentFold lifecycle.",
+          "This observed session did not complete the recommended BriefOnce lifecycle.",
           first,
         ),
       );

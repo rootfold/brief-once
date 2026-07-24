@@ -72,8 +72,8 @@ export function createMcpServiceBridge(
         {
           code,
           severity: "error",
-          message: "The shared AgentFold service became unavailable during the tool call.",
-          suggestion: "Restart agentfold service, restart this MCP process, and retry.",
+          message: "The shared BriefOnce service became unavailable during the tool call.",
+          suggestion: "Restart b1 service, restart this MCP process, and retry.",
         },
       ]);
     }

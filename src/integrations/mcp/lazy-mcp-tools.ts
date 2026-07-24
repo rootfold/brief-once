@@ -34,7 +34,7 @@ export function createLazyMcpOperations(input: CreateLazyMcpOperationsInput): La
         {
           code: "AFMCP020",
           severity: "error",
-          message: "The AgentFold workspace could not be initialized safely.",
+          message: "The BriefOnce workspace could not be initialized safely.",
           suggestion: "Restart the MCP process with one initialized repository.",
         },
       ]);

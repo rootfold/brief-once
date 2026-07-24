@@ -1,5 +1,8 @@
 # ADR 0010: Finished-task lifecycle
 
+> AgentFold was renamed BriefOnce. Compatibility identifiers described in this
+> decision remain unchanged.
+
 ## Status
 
 Accepted.

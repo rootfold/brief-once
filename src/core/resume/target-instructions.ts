@@ -9,27 +9,27 @@ interface TargetDefinition {
 const targets: Readonly<Record<ResumeTarget, TargetDefinition>> = {
   codex: {
     displayName: "Codex",
-    openingInstruction: "Continue this task from the validated AgentFold checkpoint.",
+    openingInstruction: "Continue this task from the validated BriefOnce checkpoint.",
     nativeInstructionFile: "AGENTS.md",
   },
   antigravity: {
     displayName: "Antigravity",
-    openingInstruction: "Continue this task from the validated AgentFold checkpoint.",
+    openingInstruction: "Continue this task from the validated BriefOnce checkpoint.",
     nativeInstructionFile: "GEMINI.md",
   },
   claude: {
     displayName: "Claude",
-    openingInstruction: "Continue this task from the validated AgentFold checkpoint.",
+    openingInstruction: "Continue this task from the validated BriefOnce checkpoint.",
     nativeInstructionFile: "CLAUDE.md",
   },
   gemini: {
     displayName: "Gemini",
-    openingInstruction: "Continue this task from the validated AgentFold checkpoint.",
+    openingInstruction: "Continue this task from the validated BriefOnce checkpoint.",
     nativeInstructionFile: "GEMINI.md",
   },
   generic: {
     displayName: "Generic coding agent",
-    openingInstruction: "Continue this task from the validated AgentFold checkpoint.",
+    openingInstruction: "Continue this task from the validated BriefOnce checkpoint.",
   },
 };
 

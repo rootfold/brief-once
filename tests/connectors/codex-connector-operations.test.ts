@@ -141,8 +141,8 @@ describe("Codex connector operations", () => {
       await writeFile(
         current.agents,
         (await readFile(current.agents, "utf8")).replace(
-          "Use AgentFold for substantive repository-changing work.",
-          "Use AgentFold for every message.",
+          "Use BriefOnce for substantive repository-changing work.",
+          "Use BriefOnce for every message.",
         ),
         "utf8",
       );
@@ -363,8 +363,8 @@ describe("Codex connector operations", () => {
     await writeFile(
       current.agents,
       (await readFile(current.agents, "utf8")).replace(
-        "Use AgentFold for substantive repository-changing work.",
-        "Use AgentFold for every message.",
+        "Use BriefOnce for substantive repository-changing work.",
+        "Use BriefOnce for every message.",
       ),
       "utf8",
     );

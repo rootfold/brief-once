@@ -27,7 +27,7 @@ export class McpHeartbeatManager {
     const handle = this.scheduler.setInterval(() => {
       void this.options.client.heartbeat(sessionId).catch(() => {
         this.options.logger.error(
-          "AFSV030: AgentFold service heartbeat failed; restart the service if it remains unavailable.",
+          "AFSV030: BriefOnce service heartbeat failed; restart the service if it remains unavailable.",
         );
       });
     }, intervalSeconds * 1_000);

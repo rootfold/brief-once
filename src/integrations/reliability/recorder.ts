@@ -46,7 +46,7 @@ function persistenceDiagnostic(error: unknown): Diagnostic {
           ? "Unsafe reliability-state symlink was rejected; the lifecycle operation still succeeded."
           : "Reliability metadata could not be persisted; the lifecycle operation still succeeded.",
     suggestion:
-      "Review the private AgentFold user-state directory; repository state was preserved.",
+      "Review the private AgentFold compatibility user-state directory; repository state was preserved.",
   };
 }
 

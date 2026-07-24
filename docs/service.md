@@ -1,16 +1,16 @@
 # Shared local service
 
-`agentfold service` is a user-scoped local coordinator for multiple AgentFold MCP processes and repositories. It delegates continuity work to the same validated core used by direct CLI and embedded MCP operation.
+`b1 service` is a user-scoped local coordinator for multiple BriefOnce MCP processes and repositories. It delegates continuity work to the same validated core used by direct CLI and embedded MCP operation.
 
 ```text
 Codex MCP -----------+
-Antigravity MCP -----+--> authenticated local IPC --> AgentFold core --> .agentfold/state
+Antigravity MCP -----+--> authenticated local IPC --> BriefOnce core --> .agentfold/state
 future IDE ----------+
 ```
 
 The service keeps live coordination in memory and persists only a bounded
-private session-recovery journal plus safe lifecycle events in AgentFold's
-user-scoped state directory. Project context, report text, source files, diffs,
+private session-recovery journal plus safe lifecycle events in the retained
+AgentFold compatibility state directory. Project context, report text, source files, diffs,
 and checkpoints are not copied there. See
 [reliability monitoring](reliability.md).
 
@@ -19,25 +19,25 @@ and checkpoints are not copied there. See
 Start a detached service and wait until its authenticated ping succeeds:
 
 ```bash
-agentfold service start
+b1 service start
 ```
 
 Inspect it without trusting a PID file alone:
 
 ```bash
-agentfold service status
+b1 service status
 ```
 
 Run it in the foreground for development or diagnostics:
 
 ```bash
-agentfold service run --debug
+b1 service run --debug
 ```
 
 Request graceful shutdown and wait for runtime cleanup:
 
 ```bash
-agentfold service stop
+b1 service stop
 ```
 
 Starting an already-running compatible service and stopping an already-stopped service both succeed. Shutdown does not create checkpoints merely because the service is stopping.
@@ -54,6 +54,9 @@ Persistent reliability state is separate from the transient IPC runtime:
 `~/Library/Application Support/AgentFold/state` on macOS, and
 `$XDG_STATE_HOME/agentfold` or `~/.local/state/agentfold` on Linux.
 `AGENTFOLD_STATE_DIR` is an advanced/test override.
+
+These names intentionally remain unchanged after the BriefOnce rebrand so an
+upgrade reuses existing tokens, journals, and reliability history.
 
 Runtime directories may not resolve through an unsafe symbolic link. Fixed macOS system aliases such as `/var` to `/private/var` are canonicalized, while symlinks beneath them remain unsafe. Directories use mode `0700`, and metadata and Unix sockets use `0600`, where supported. No runtime file is placed in a project repository.
 
@@ -126,9 +129,9 @@ Set `automation.enabled: false` to retain shared sessions and explicit lifecycle
 ## MCP modes
 
 ```bash
-agentfold mcp --workspace . --service auto
-agentfold mcp --workspace . --service required
-agentfold mcp --workspace . --service disabled
+b1 mcp --workspace . --service auto
+b1 mcp --workspace . --service required
+b1 mcp --workspace . --service disabled
 ```
 
 - `auto` is the default. It delegates all nine tools when a compatible service is ready; otherwise it warns on stderr and starts embedded mode.
@@ -140,16 +143,16 @@ Fallback occurs only during startup. A service failure during a tool call return
 Future supported connectors will register:
 
 ```bash
-agentfold mcp --service required --workspace <project>
+b1 mcp --service required --workspace <project>
 ```
 
 This milestone does not modify any host application's configuration.
 
 ## Troubleshooting
 
-- If `service status` reports stopped, run `agentfold service start`.
-- If required MCP reports incompatibility, stop the old service and start it with the current AgentFold package.
-- If startup times out, run `agentfold service run --debug` and inspect stderr.
+- If `service status` reports stopped, run `b1 service start`.
+- If required MCP reports incompatibility, stop the old service and start it with the current BriefOnce package.
+- If startup times out, run `b1 service run --debug` and inspect stderr.
 - Confirm `AGENTFOLD_RUNTIME_DIR` is not a symlink and is writable by the current user.
 - Confirm `.agentfold/config.yaml` and all five canonical context files are valid; session operations still use canonical validation.
 

@@ -51,7 +51,7 @@ export async function launchAgentFoldMcpWithOfficialClient(input: {
     roots: [
       {
         uri: pathToFileURL(input.repositoryRoot).toString(),
-        name: "AgentFold workspace",
+        name: "BriefOnce workspace",
       },
     ],
   }));
@@ -61,7 +61,7 @@ export async function launchAgentFoldMcpWithOfficialClient(input: {
     const names = listed.tools.map((tool) => tool.name).sort();
     const expected = Object.values(agentFoldMcpToolNames).sort();
     if (JSON.stringify(names) !== JSON.stringify(expected)) {
-      throw new Error("The configured MCP server did not expose all AgentFold lifecycle tools.");
+      throw new Error("The configured MCP server did not expose all BriefOnce lifecycle tools.");
     }
     const status = await client.callTool(
       { name: agentFoldMcpToolNames.getStatus, arguments: {} },

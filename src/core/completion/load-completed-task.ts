@@ -53,7 +53,7 @@ export async function loadLatestCompletedTask(
             error instanceof CompletedTaskParseError
               ? error.message
               : "Completed-task history could not be inspected safely.",
-          suggestion: "Review .agentfold/state/completed; AgentFold did not modify it.",
+          suggestion: "Review .agentfold/state/completed; BriefOnce did not modify it.",
         },
       ],
     };

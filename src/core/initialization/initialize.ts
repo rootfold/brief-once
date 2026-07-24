@@ -84,7 +84,7 @@ export async function prepareInitialization(
         {
           code: "AFI001",
           severity: "error",
-          message: "AgentFold initialization requires an existing Git repository.",
+          message: "BriefOnce initialization requires an existing Git repository.",
           suggestion: "Run init from inside a Git repository.",
         },
       ],
@@ -103,8 +103,8 @@ export async function prepareInitialization(
         {
           code: "AFI002",
           severity: "info",
-          message: `AgentFold appears to be initialized. ${inspectionDetail(inspection)}`,
-          suggestion: "No files were changed. Run agentfold doctor to validate the installation.",
+          message: `BriefOnce appears to be initialized. ${inspectionDetail(inspection)}`,
+          suggestion: "No files were changed. Run b1 doctor to validate the installation.",
         },
       ],
     };
@@ -120,7 +120,7 @@ export async function prepareInitialization(
         {
           code: "AFI002",
           severity: "error",
-          message: `A partial AgentFold installation already exists. ${inspectionDetail(inspection)}`,
+          message: `A partial BriefOnce installation already exists. ${inspectionDetail(inspection)}`,
           suggestion: "Review the existing files manually; init will not overwrite them.",
         },
       ],
@@ -167,7 +167,7 @@ export async function prepareInitialization(
         {
           code: "AFI004",
           severity: "success",
-          message: `${files.length} AgentFold files are ready to create.`,
+          message: `${files.length} BriefOnce files are ready to create.`,
         },
       ],
     };

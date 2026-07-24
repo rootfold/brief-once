@@ -90,14 +90,14 @@ export function registerCheckpointCommand(
         ...(options.agent === undefined ? {} : { agent: options.agent }),
       });
 
-      writeLine(output, "AgentFold checkpoint");
+      writeLine(output, "BriefOnce checkpoint");
       writeLine(output);
       for (const diagnostic of plan.diagnostics) {
         writeLine(output, formatDiagnostic(diagnostic, { color: output.useColor }));
       }
 
       if (plan.exitCode !== 0) {
-        throw new CliCommandError(plan.exitCode, "AgentFold checkpoint could not proceed");
+        throw new CliCommandError(plan.exitCode, "BriefOnce checkpoint could not proceed");
       }
       if (plan.status === "duplicate") {
         for (const item of await recordCliReliability({
@@ -159,7 +159,7 @@ export function registerCheckpointCommand(
         writeLine(output, formatDiagnostic(diagnostic, { color: output.useColor }));
       }
       if (result.exitCode !== 0) {
-        throw new CliCommandError(result.exitCode, "AgentFold checkpoint could not be persisted");
+        throw new CliCommandError(result.exitCode, "BriefOnce checkpoint could not be persisted");
       }
       for (const item of await recordCliReliability({
         repositoryRoot: plan.repositoryRoot,

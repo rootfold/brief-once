@@ -95,7 +95,7 @@ export async function getStatus(
     diagnostics.push({
       code: "AFMCP015",
       severity: "warning",
-      message: "Local AgentFold state is not ignored by Git.",
+      message: "Local BriefOnce state is not ignored by Git.",
       suggestion: "Add only .agentfold/state/ to .gitignore.",
     });
   }

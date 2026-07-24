@@ -14,7 +14,7 @@ export function resolveConnectorStateDirectory(
   if (platform.platform === "win32") {
     const localAppData = platform.environment.LOCALAPPDATA;
     if (localAppData === undefined || localAppData.trim().length === 0) {
-      throw new Error("LOCALAPPDATA is unavailable for AgentFold connector state.");
+      throw new Error("LOCALAPPDATA is unavailable for BriefOnce connector state.");
     }
     return path.win32.join(localAppData, "AgentFold", "connectors");
   }

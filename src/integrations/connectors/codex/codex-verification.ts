@@ -149,7 +149,7 @@ export async function verifyCodexConnection(
       diagnostic(
         "AFCD020",
         "error",
-        "Codex verification requires an initialized AgentFold repository.",
+        "Codex verification requires an initialized BriefOnce repository.",
       ),
     ]);
   }
@@ -218,7 +218,7 @@ export async function verifyCodexConnection(
     const entry = readCodexAgentFoldEntry(configBytes);
     if (region === undefined || entry === undefined) {
       return invalidResult(1, [
-        diagnostic("AFCD024", "error", "The AgentFold Codex MCP region is missing."),
+        diagnostic("AFCD024", "error", "The BriefOnce Codex MCP region is missing."),
       ]);
     }
     codexMcpEntrySchema.parse(entry);
@@ -242,7 +242,7 @@ export async function verifyCodexConnection(
     const descriptor = await input.resolveDescriptor();
     if (descriptor.fingerprint !== ownership.executableDescriptorFingerprint) {
       return invalidResult(1, [
-        diagnostic("AFCD026", "error", "The installed AgentFold executable descriptor is stale."),
+        diagnostic("AFCD026", "error", "The installed BriefOnce executable descriptor is stale."),
       ]);
     }
     const agentsPath = path.join(context.repositoryRoot, "AGENTS.md");

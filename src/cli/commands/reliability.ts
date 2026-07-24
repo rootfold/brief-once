@@ -39,7 +39,7 @@ function titleCase(value: string): string {
 }
 
 function renderHuman(output: CliOutput, report: ReliabilityReport): void {
-  writeLine(output, "AgentFold reliability");
+  writeLine(output, "BriefOnce reliability");
   writeLine(output);
   if (report.currentTask !== undefined) {
     writeLine(output, "Current task");
@@ -54,7 +54,7 @@ function renderHuman(output: CliOutput, report: ReliabilityReport): void {
     writeLine(output);
   }
   if (report.hosts.length === 0) {
-    writeLine(output, "No AgentFold lifecycle activity has been recorded for this repository.");
+    writeLine(output, "No BriefOnce lifecycle activity has been recorded for this repository.");
   }
   for (const host of report.hosts) {
     writeLine(output, titleCase(host.host));
@@ -114,9 +114,9 @@ export function registerReliabilityCommand(
 ): void {
   program
     .command("reliability")
-    .description("Inspect read-only AgentFold lifecycle reliability history")
+    .description("Inspect read-only BriefOnce lifecycle reliability history")
     .option("--host <host>", `filter by host: ${reliabilityHosts.join(", ")}`)
-    .option("--task <task-id>", "filter by AgentFold task identifier")
+    .option("--task <task-id>", "filter by BriefOnce task identifier")
     .option("--session <session-id>", "filter by observed session identifier")
     .option("--limit <number>", "maximum recent events to analyze", "100")
     .option("--json", "emit stable JSON")

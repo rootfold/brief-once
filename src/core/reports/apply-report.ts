@@ -112,7 +112,7 @@ export async function prepareAgentReport(
           code: "AFR001",
           severity: "error",
           message: "No active task exists.",
-          suggestion: "Run agentfold start before submitting a report.",
+          suggestion: "Run b1 start before submitting a report.",
         },
       ],
       repositoryRoot,

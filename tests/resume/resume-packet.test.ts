@@ -138,7 +138,7 @@ describe("resume packet rendering", () => {
     expect(first.indexOf("`pnpm test` — failed")).toBeLessThan(
       first.indexOf("`pnpm lint` — passed"),
     );
-    expect(first).toContain("submit a concise structured AgentFold report");
+    expect(first).toContain("submit a concise structured BriefOnce report");
     expect(first).toContain("never private chain of thought, secrets");
   });
 

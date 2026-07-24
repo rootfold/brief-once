@@ -118,14 +118,17 @@ describe("Antigravity path discovery", () => {
   });
 });
 
-describe("AgentFold launch descriptors", () => {
+describe("BriefOnce launch descriptors", () => {
   it("resolves a verified built or npm-installed CLI without a shell or package-manager shim", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "agentfold package Å "));
     temporaryDirectories.push(root);
     await mkdir(path.join(root, "dist"));
     await writeFile(
       path.join(root, "package.json"),
-      JSON.stringify({ name: "@rootfold/agentfold", bin: { agentfold: "./dist/cli.js" } }),
+      JSON.stringify({
+        name: "@rootfold/brief-once",
+        bin: { b1: "./dist/cli.js", agentfold: "./dist/cli.js" },
+      }),
       "utf8",
     );
     await writeFile(path.join(root, "dist", "cli.js"), "#!/usr/bin/env node\n", "utf8");
@@ -153,14 +156,14 @@ describe("AgentFold launch descriptors", () => {
   it("resolves the official scoped package from a global-style installation path", async () => {
     const prefix = await mkdtemp(path.join(os.tmpdir(), "agentfold global prefix Å "));
     temporaryDirectories.push(prefix);
-    const packageRoot = path.join(prefix, "lib", "node_modules", "@rootfold", "agentfold");
+    const packageRoot = path.join(prefix, "lib", "node_modules", "@rootfold", "brief-once");
     const cliEntry = path.join(packageRoot, "dist", "cli.js");
     await mkdir(path.dirname(cliEntry), { recursive: true });
     await writeFile(
       path.join(packageRoot, "package.json"),
       JSON.stringify({
-        name: "@rootfold/agentfold",
-        bin: { agentfold: "./dist/cli.js" },
+        name: "@rootfold/brief-once",
+        bin: { b1: "./dist/cli.js", agentfold: "./dist/cli.js" },
       }),
       "utf8",
     );
@@ -178,6 +181,28 @@ describe("AgentFold launch descriptors", () => {
 
     expect(descriptor.command).toBe(path.resolve(process.execPath));
     expect(descriptor.argsPrefix).toEqual([cliEntry]);
+  });
+
+  it("keeps resolving the legacy scoped AgentFold package", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "agentfold legacy package "));
+    temporaryDirectories.push(root);
+    await mkdir(path.join(root, "dist"));
+    await writeFile(
+      path.join(root, "package.json"),
+      JSON.stringify({ name: "@rootfold/agentfold", bin: { agentfold: "./dist/cli.js" } }),
+      "utf8",
+    );
+    await writeFile(path.join(root, "dist", "cli.js"), "#!/usr/bin/env node\n", "utf8");
+    const descriptor = await resolveAgentFoldLaunchDescriptor({
+      fileSystem: new NodeFileSystem(() => root),
+      processRunner: {
+        run: () => Promise.resolve({ exitCode: 0, stdout: "0.1.3", stderr: "" }),
+      },
+      executable: process.execPath,
+      modulePath: path.join(root, "dist", "module.js"),
+      allowTemporaryPath: true,
+    });
+    expect(descriptor.argsPrefix).toEqual([path.join(root, "dist", "cli.js")]);
   });
 
   it("rejects missing package, executable, and CLI entries", async () => {

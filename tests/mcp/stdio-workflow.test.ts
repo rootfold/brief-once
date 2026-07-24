@@ -163,7 +163,7 @@ describe("real MCP stdio workflow", () => {
       resumeFormat: "markdown",
     });
     expect(resultEnvelope(second).status).toBe("resumable");
-    expect(String(resultData(second).resumePacket)).toContain("# AgentFold continuation packet");
+    expect(String(resultData(second).resumePacket)).toContain("# BriefOnce continuation packet");
 
     expect(JSON.stringify(responses)).not.toContain("SOURCE_MUST_NOT_LEAK");
     expect(JSON.stringify(responses)).not.toContain(fixture);

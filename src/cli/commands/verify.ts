@@ -82,7 +82,7 @@ export function registerVerifyCommand(
                 ? {}
                 : { environment: dependencies.antigravity.environment }),
             });
-      writeLine(output, `AgentFold ${host === "codex" ? "Codex" : "Antigravity"} verification`);
+      writeLine(output, `BriefOnce ${host === "codex" ? "Codex" : "Antigravity"} verification`);
       writeLine(output);
       for (const item of result.diagnostics)
         writeLine(output, formatDiagnostic(item, { color: output.useColor }));

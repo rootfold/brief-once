@@ -48,7 +48,7 @@ function coreDependencies(dependencies: StartDependencies): PrepareTaskStartDepe
 }
 
 function writePlan(output: CliOutput, plan: TaskStartPlan): void {
-  writeLine(output, "AgentFold start");
+  writeLine(output, "BriefOnce start");
   writeLine(output);
 
   for (const diagnostic of plan.diagnostics) {
@@ -74,7 +74,7 @@ export function registerStartCommand(
 ): void {
   program
     .command("start")
-    .description("Preview or create a new active AgentFold task")
+    .description("Preview or create a new active BriefOnce task")
     .argument("<title>", "concise task objective")
     .option("--agent <agent>", "starting coding agent")
     .addOption(new Option("--dry-run", "preview without writing state").conflicts("yes"))
@@ -87,7 +87,7 @@ export function registerStartCommand(
       writePlan(output, plan);
 
       if (plan.exitCode !== 0) {
-        throw new CliCommandError(plan.exitCode, "AgentFold task start could not proceed");
+        throw new CliCommandError(plan.exitCode, "BriefOnce task start could not proceed");
       }
 
       if (plan.status !== "ready") {

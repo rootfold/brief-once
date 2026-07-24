@@ -1,9 +1,12 @@
 {
-  "name": "@rootfold/agentfold",
+  "name": "@rootfold/brief-once",
   "version": "0.1.3",
-  "description": "A local-first CLI for portable coding-agent context.",
+  "description": "Cross-agent development continuity for AI coding tools.",
   "type": "module",
   "bin": {
+    "b1": "./dist/cli.js",
+    "briefonce": "./dist/cli.js",
+    "brief-once": "./dist/cli.js",
     "agentfold": "./dist/cli.js"
   },
   "exports": {
@@ -18,6 +21,8 @@
     "README.md"
   ],
   "scripts": {
+    "b1": "tsx src/cli/index.ts",
+    "briefonce": "tsx src/cli/index.ts",
     "agentfold": "tsx src/cli/index.ts",
     "dev": "tsx src/cli/index.ts",
     "build": "tsup",
@@ -38,19 +43,27 @@
     "access": "public"
   },
   "keywords": [
-    "cli",
+    "briefonce",
+    "ai",
+    "coding-agent",
     "coding-agents",
-    "developer-tools"
+    "mcp",
+    "codex",
+    "antigravity",
+    "developer-tools",
+    "agent-handoff",
+    "context-continuity",
+    "local-first"
   ],
   "author": "RootFold",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rootfold/AgentFold.git"
+    "url": "git+https://github.com/rootfold/brief-once.git"
   },
-  "homepage": "https://github.com/rootfold/AgentFold#readme",
+  "homepage": "https://github.com/rootfold/brief-once#readme",
   "bugs": {
-    "url": "https://github.com/rootfold/AgentFold/issues"
+    "url": "https://github.com/rootfold/brief-once/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.29.0",

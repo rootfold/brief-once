@@ -125,7 +125,7 @@ export async function resolveResumeCheckpoint(
         6,
         "AFR004",
         "No immutable checkpoint history exists for the active task.",
-        "Run agentfold checkpoint before resuming.",
+        "Run b1 checkpoint before resuming.",
       );
     }
 
@@ -139,7 +139,7 @@ export async function resolveResumeCheckpoint(
           6,
           "AFR004",
           "No immutable checkpoint exists for the active task.",
-          "Run agentfold checkpoint before resuming.",
+          "Run b1 checkpoint before resuming.",
         );
       }
       latestCheckpointId = fallbackLatestId;
@@ -199,7 +199,7 @@ export async function resolveResumeCheckpoint(
           : taskMismatch
             ? "The selected checkpoint belongs to a different task."
             : "The selected checkpoint is invalid or corrupt.",
-        "Inspect or recreate the checkpoint safely; AgentFold did not repair it.",
+        "Inspect or recreate the checkpoint safely; BriefOnce did not repair it.",
       );
     }
     if (checkpoint.checkpointId !== checkpointId) {

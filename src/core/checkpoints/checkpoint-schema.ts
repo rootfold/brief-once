@@ -97,7 +97,7 @@ export const checkpointSchema = z
     kind: z.enum(["progress", "final"]).default("progress"),
     taskStatus: z.literal("completed").optional(),
     checkpointId: z.string().regex(/^CP-\d{3}$/u, "Must be a valid checkpoint ID"),
-    taskId: z.string().regex(/^AF-\d{8}-\d{3}$/u, "Must be a valid AgentFold task ID"),
+    taskId: z.string().regex(/^AF-\d{8}-\d{3}$/u, "Must be a valid BriefOnce task ID"),
     taskTitle: taskTitleSchema,
     taskObjective: objectiveSchema,
     createdAt: timestampSchema,

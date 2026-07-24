@@ -34,7 +34,7 @@ export function registerMcpCommand(
 ): void {
   program
     .command("mcp")
-    .description("Run the local AgentFold MCP server over stdio")
+    .description("Run the local BriefOnce MCP server over stdio")
     .option("--workspace <path>", "single repository workspace served by this process")
     .addOption(
       new Option("--workspace-mode <mode>", "workspace selection mode").choices([
@@ -70,6 +70,6 @@ export function registerMcpCommand(
         logger,
         ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
       });
-      if (exitCode !== 0) throw new CliCommandError(exitCode, "AgentFold MCP server stopped");
+      if (exitCode !== 0) throw new CliCommandError(exitCode, "BriefOnce MCP server stopped");
     });
 }

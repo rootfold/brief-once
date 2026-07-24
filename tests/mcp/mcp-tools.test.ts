@@ -300,7 +300,7 @@ describe("AgentFold MCP tools", () => {
       resumeFormat: "markdown",
     });
     expect(second.status).toBe("resumable");
-    expect(String(data(second).resumePacket)).toContain("# AgentFold continuation packet");
+    expect(String(data(second).resumePacket)).toContain("# BriefOnce continuation packet");
     expect(JSON.stringify(second)).not.toContain(harness.root);
   }, 30_000);
 

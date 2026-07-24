@@ -68,7 +68,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
             code: "AFD002",
             severity: "warning",
             message: "The current directory is not inside a Git repository.",
-            suggestion: "Initialize Git before adopting AgentFold for this project.",
+            suggestion: "Initialize Git before adopting BriefOnce for this project.",
           }
         : {
             code: "AFD002",
@@ -122,7 +122,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
       diagnostics.push({
         code: "AFD004",
         severity: "success",
-        message: "Canonical AgentFold project context is valid.",
+        message: "Canonical BriefOnce project context is valid.",
       });
       diagnostics.push(...contextResult.diagnostics);
     } else if (contextResult.diagnostics.every((diagnostic) => diagnostic.code === "AFC001")) {
@@ -130,7 +130,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
         code: "AFD004",
         severity: "warning",
         message: "Canonical context cannot be resolved outside a Git repository.",
-        suggestion: "Initialize Git before adopting AgentFold for this project.",
+        suggestion: "Initialize Git before adopting BriefOnce for this project.",
       });
     } else if (contextResult.diagnostics.every((diagnostic) => diagnostic.code === "AFC002")) {
       if (inspection.directoryExists) {
@@ -139,7 +139,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
         diagnostics.push({
           code: "AFD004",
           severity: "warning",
-          message: `A partial AgentFold installation was found. Present: ${present}. Missing: ${inspection.missingFiles.join(", ")}.`,
+          message: `A partial BriefOnce installation was found. Present: ${present}. Missing: ${inspection.missingFiles.join(", ")}.`,
           suggestion: "Review the partial installation before running init again.",
         });
       } else {
@@ -147,7 +147,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
           code: "AFD004",
           severity: "warning",
           message: ".agentfold/config.yaml was not found.",
-          suggestion: "This is expected before AgentFold initialization.",
+          suggestion: "This is expected before BriefOnce initialization.",
         });
       }
     } else {
@@ -157,7 +157,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
       diagnostics.push({
         code: "AFD004",
         severity: "error",
-        message: "Canonical AgentFold project context is invalid.",
+        message: "Canonical BriefOnce project context is invalid.",
         suggestion: "Review the following context diagnostics; doctor did not modify anything.",
       });
       diagnostics.push(...contextResult.diagnostics);
@@ -166,7 +166,7 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
     diagnostics.push({
       code: "AFD004",
       severity: "error",
-      message: `AgentFold configuration check failed: ${errorMessage(error)}`,
+      message: `BriefOnce configuration check failed: ${errorMessage(error)}`,
     });
   }
 
@@ -190,7 +190,7 @@ export function registerDoctorCommand(
     .description("Run basic project readiness checks")
     .action(async () => {
       const result = await runDoctor(dependencies);
-      writeLine(output, "AgentFold doctor");
+      writeLine(output, "BriefOnce doctor");
       writeLine(output);
 
       for (const diagnostic of result.diagnostics) {
@@ -198,7 +198,7 @@ export function registerDoctorCommand(
       }
 
       if (result.exitCode !== 0) {
-        throw new CliCommandError(result.exitCode, "AgentFold doctor found execution failures");
+        throw new CliCommandError(result.exitCode, "BriefOnce doctor found execution failures");
       }
     });
 }

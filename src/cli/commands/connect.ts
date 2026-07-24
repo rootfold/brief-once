@@ -16,6 +16,7 @@ import {
   type ConnectorHost,
   type ConnectorSurface,
 } from "../../integrations/connectors/connector-types.js";
+import { productBrand } from "../../product-brand.js";
 import { CliCommandError } from "../command-error.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
@@ -51,7 +52,10 @@ function writePlan(
   }
   writeLine(output);
   writeLine(output, "MCP launch");
-  writeLine(output, "  agentfold mcp --service required --ensure-service --workspace-mode auto");
+  writeLine(
+    output,
+    `  ${productBrand.primaryCommand} mcp --service required --ensure-service --workspace-mode auto`,
+  );
   writeLine(output);
 }
 
@@ -73,7 +77,10 @@ export function registerConnectCommand(
     )
     .action(async (host: string, options: ConnectOptions) => {
       validateHost(host, output);
-      writeLine(output, `AgentFold ${host === "codex" ? "Codex" : "Antigravity"} connector`);
+      writeLine(
+        output,
+        `${productBrand.productName} ${host === "codex" ? "Codex" : "Antigravity"} connector`,
+      );
       writeLine(output);
       if (host === "antigravity") {
         const plan = await prepareAntigravityConnection(dependencies.antigravity, options.surface);
@@ -94,7 +101,10 @@ export function registerConnectCommand(
         if (result.exitCode !== 0)
           throw new CliCommandError(result.exitCode, "Connector install failed");
         writeLine(output);
-        writeLine(output, "AgentFold runs locally over stdio and authenticated local IPC.");
+        writeLine(
+          output,
+          `${productBrand.productName} runs locally over stdio and authenticated local IPC.`,
+        );
         writeLine(output, "In Antigravity, refresh Installed MCP Servers and inspect `agentfold`.");
         return;
       }
@@ -116,7 +126,10 @@ export function registerConnectCommand(
       if (result.exitCode !== 0)
         throw new CliCommandError(result.exitCode, "Connector install failed");
       writeLine(output);
-      writeLine(output, "AgentFold runs locally over stdio and authenticated local IPC.");
+      writeLine(
+        output,
+        `${productBrand.productName} runs locally over stdio and authenticated local IPC.`,
+      );
       writeLine(
         output,
         "Restart Codex or its IDE extension, then confirm `agentfold` is enabled in MCP servers.",

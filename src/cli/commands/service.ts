@@ -47,11 +47,11 @@ export function registerServiceCommand(
 ): void {
   const service = program
     .command("service")
-    .description("Manage the shared local AgentFold service");
+    .description("Manage the shared local BriefOnce service");
 
   service
     .command("run")
-    .description("Run the shared AgentFold service in the foreground")
+    .description("Run the shared BriefOnce service in the foreground")
     .option("--debug", "write safe service lifecycle diagnostics to stderr")
     .action(async (_options: ServiceRunOptions, command: Command) => {
       const debug = command.optsWithGlobals<ServiceRunOptions>().debug === true;
@@ -63,26 +63,30 @@ export function registerServiceCommand(
         logger: createMcpStderrLogger((text) => output.writeError(text), debug),
         ...(dependencies.now === undefined ? {} : { now: dependencies.now }),
       });
-      if (exitCode !== 0) throw new CliCommandError(exitCode, "AgentFold service stopped");
+      if (exitCode !== 0) throw new CliCommandError(exitCode, "BriefOnce service stopped");
     });
 
   service
     .command("start")
-    .description("Start the shared AgentFold service in the background")
+    .description("Start the shared BriefOnce service in the background")
     .action(async () => {
+      writeLine(output, "BriefOnce service");
+      writeLine(output);
       const result = await (dependencies.startService ?? startAgentFoldService)({
         fileSystem: dependencies.fileSystem,
         version: dependencies.version,
       });
       printDiagnostics(output, result.diagnostics);
       if (result.exitCode !== 0)
-        throw new CliCommandError(result.exitCode, "AgentFold service could not start");
+        throw new CliCommandError(result.exitCode, "BriefOnce service could not start");
     });
 
   service
     .command("status")
-    .description("Inspect the shared AgentFold service")
+    .description("Inspect the shared BriefOnce service")
     .action(async () => {
+      writeLine(output, "BriefOnce service");
+      writeLine(output);
       const result = await (dependencies.inspectService ?? inspectAgentFoldService)({
         fileSystem: dependencies.fileSystem,
         version: dependencies.version,
@@ -110,19 +114,21 @@ export function registerServiceCommand(
         writeLine(output, `Automation: ${status.automationEnabled ? "enabled" : "disabled"}`);
       }
       if (result.exitCode !== 0)
-        throw new CliCommandError(result.exitCode, "AgentFold service status failed");
+        throw new CliCommandError(result.exitCode, "BriefOnce service status failed");
     });
 
   service
     .command("stop")
-    .description("Stop the shared AgentFold service gracefully")
+    .description("Stop the shared BriefOnce service gracefully")
     .action(async () => {
+      writeLine(output, "BriefOnce service");
+      writeLine(output);
       const result = await (dependencies.stopService ?? stopAgentFoldService)({
         fileSystem: dependencies.fileSystem,
         version: dependencies.version,
       });
       printDiagnostics(output, result.diagnostics);
       if (result.exitCode !== 0)
-        throw new CliCommandError(result.exitCode, "AgentFold service could not stop");
+        throw new CliCommandError(result.exitCode, "BriefOnce service could not stop");
     });
 }

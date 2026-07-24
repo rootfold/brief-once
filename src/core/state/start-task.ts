@@ -258,7 +258,7 @@ export async function prepareTaskStart(
         code: "AFS005",
         severity: "warning",
         message: "Local active state is not ignored by Git.",
-        suggestion: "Add only .agentfold/state/ to .gitignore; AgentFold did not edit it.",
+        suggestion: "Add only .agentfold/state/ to .gitignore; BriefOnce did not edit it.",
       });
     }
 

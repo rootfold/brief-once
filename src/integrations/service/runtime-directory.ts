@@ -58,7 +58,7 @@ export function resolveServiceRuntimeLocation(
   if (input.platform === "win32") {
     const localAppData = input.environment.LOCALAPPDATA;
     if (localAppData === undefined || localAppData.trim().length === 0) {
-      throw new Error("LOCALAPPDATA is unavailable for the AgentFold service runtime.");
+      throw new Error("LOCALAPPDATA is unavailable for the BriefOnce service runtime.");
     }
     return {
       directory: path.win32.join(localAppData, "AgentFold", "runtime"),
@@ -142,11 +142,15 @@ export async function prepareServiceRuntimeDirectory(
     (hasUnsafeSymbolicLink === undefined &&
       !samePlatformPath(location.directory, realDirectory, platform.platform))
   ) {
-    throw new Error("The AgentFold runtime directory resolves through a symbolic link.");
+    throw new Error(
+      "The BriefOnce compatibility runtime directory resolves through a symbolic link.",
+    );
   }
   await (input.restrictDirectory ?? defaultRestrictDirectory)(realDirectory);
   if ((await input.gitRepositoryLocator?.findRoot(realDirectory)) !== undefined) {
-    throw new Error("The AgentFold runtime directory must remain outside project repositories.");
+    throw new Error(
+      "The BriefOnce compatibility runtime directory must remain outside project repositories.",
+    );
   }
   return { ...location, realDirectory, diagnostics: [] };
 }

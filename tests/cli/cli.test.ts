@@ -28,7 +28,9 @@ describe("AgentFold CLI", () => {
     });
 
     expect(exitCode).toBe(0);
-    expect(captured.stdout()).toContain("Usage: agentfold");
+    expect(captured.stdout()).toContain("BriefOnce");
+    expect(captured.stdout()).toContain("Brief once. Continue with any agent.");
+    expect(captured.stdout()).toContain("Usage: b1");
     expect(captured.stdout()).toContain("doctor");
     expect(captured.stdout()).toContain("init");
     expect(captured.stdout()).toContain("start");
@@ -110,7 +112,7 @@ describe("AgentFold CLI", () => {
     expect(captured.stdout()).toContain("✓ passed [AFD001]");
     expect(captured.stdout()).toContain("Git repository detected");
     expect(captured.stdout()).toContain("⚠ warning [AFD004]");
-    expect(captured.stdout()).toContain("expected before AgentFold initialization");
+    expect(captured.stdout()).toContain("expected before BriefOnce initialization");
     expect(captured.stderr()).toBe("");
   });
 

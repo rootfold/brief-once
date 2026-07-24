@@ -110,6 +110,23 @@ function locateRegion(source: string): ManagedRegion | undefined | "malformed" {
 }
 
 const instructionLines = [
+  "## BriefOnce continuity for Codex",
+  "",
+  "- Use BriefOnce for substantive repository-changing work.",
+  "- BriefOnce currently exposes compatibility MCP tools using the `agentfold_*` namespace.",
+  "- Before modifying files, call `agentfold_open_session` and continue a relevant active task.",
+  "- Call `agentfold_begin_task` only when no relevant active task exists; do not create tasks for simple questions or read-only inspection.",
+  "- After meaningful milestones, call `agentfold_report_progress` with concise engineering conclusions only.",
+  "- Call `agentfold_finish_task` when the requested scope is fully complete, blockers are resolved, and final validation is honestly reported.",
+  "- Call `agentfold_close_session` with checkpointing when work is paused, incomplete, blocked, uncertain, or handed off; do not finish merely because context or usage limits were reached.",
+  "- After finishing, keep the session open and call `agentfold_begin_task` for the next substantive unrelated request.",
+  "- Preserve uncommitted work and avoid repeated failed approaches identified by continuation packets.",
+  "- Treat reused or absent semantic context cautiously and verify assumptions against the repository.",
+  "- Never report private chain of thought, complete conversations, secrets, or environment values.",
+  "- Never commit, push, discard work, or replace an unrelated active task without the user's confirmation.",
+];
+
+const agentFoldInstructionLines = [
   "## AgentFold continuity for Codex",
   "",
   "- Use AgentFold for substantive repository-changing work.",
@@ -141,9 +158,13 @@ const previousInstructionLines = [
 
 export function renderCodexAgentsRegion(
   lineEnding: "\n" | "\r\n" = "\n",
-  schemaVersion = 2,
+  schemaVersion = 3,
 ): string {
   return [`${startPrefix}${schemaVersion} -->`, ...instructionLines, endMarker].join(lineEnding);
+}
+
+export function renderAgentFoldCodexAgentsRegion(lineEnding: "\n" | "\r\n" = "\n"): string {
+  return [`${startPrefix}2 -->`, ...agentFoldInstructionLines, endMarker].join(lineEnding);
 }
 
 export function renderLegacyCodexAgentsRegion(lineEnding: "\n" | "\r\n" = "\n"): string {
@@ -192,6 +213,9 @@ export function prepareCodexAgentsEdit(
   const previousFingerprint = fingerprintCodexAgentsRegion(
     renderPreviousCodexAgentsRegion(document.lineEnding),
   );
+  const agentFoldFingerprint = fingerprintCodexAgentsRegion(
+    renderAgentFoldCodexAgentsRegion(document.lineEnding),
+  );
   if (region === undefined) {
     return {
       status: "ready",
@@ -212,7 +236,8 @@ export function prepareCodexAgentsEdit(
   if (
     !provenFingerprints.includes(currentFingerprint) &&
     currentFingerprint !== legacyFingerprint &&
-    currentFingerprint !== previousFingerprint
+    currentFingerprint !== previousFingerprint &&
+    currentFingerprint !== agentFoldFingerprint
   ) {
     return { status: "collision", reason: "The AgentFold-owned AGENTS.md region was modified." };
   }

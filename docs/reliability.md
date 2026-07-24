@@ -1,17 +1,17 @@
 # Reliability monitoring
 
-`agentfold reliability` is a read-only view of lifecycle activity that
-AgentFold actually observed for the current repository.
+`b1 reliability` is a read-only view of lifecycle activity that
+BriefOnce actually observed for the current repository.
 
 ```bash
-agentfold reliability
-agentfold reliability --host codex
-agentfold reliability --host antigravity
-agentfold reliability --task AF-20260724-001
-agentfold reliability --session svc-example
-agentfold reliability --limit 50
-agentfold reliability --include-events
-agentfold reliability --json
+b1 reliability
+b1 reliability --host codex
+b1 reliability --host antigravity
+b1 reliability --task AF-20260724-001
+b1 reliability --session svc-example
+b1 reliability --limit 50
+b1 reliability --include-events
+b1 reliability --json
 ```
 
 The command does not start the service, create a checkpoint, rewrite
@@ -19,9 +19,9 @@ The command does not start the service, create a checkpoint, rewrite
 persisted private history. `--include-events` adds only safe event summaries;
 the default output does not dump event history.
 
-## What AgentFold measures
+## What BriefOnce measures
 
-AgentFold can report whether an observed session:
+BriefOnce can report whether an observed session:
 
 - opened and began or continued a task;
 - submitted semantic progress;
@@ -31,9 +31,9 @@ AgentFold can report whether an observed session:
 - detached, timed out, was superseded, or was interrupted by service restart;
 - required a recovery checkpoint and whether recovery succeeded.
 
-AgentFold cannot observe host sessions that never call an AgentFold lifecycle
+BriefOnce cannot observe host sessions that never call a BriefOnce lifecycle
 operation. Percentages therefore use the label **Observed lifecycle
-completion** and include only sessions opened through AgentFold. They are not a
+completion** and include only sessions opened through BriefOnce. They are not a
 claim about all Codex or Antigravity usage.
 
 ## Private storage and retention
@@ -73,11 +73,12 @@ When `enabled` is false, core lifecycle operations continue and existing event
 files remain untouched. The separately configured restart journal may continue
 when `interrupted_recovery_enabled` is true.
 
+The legacy directory names are compatibility namespaces retained by BriefOnce.
 To clear history manually, stop the service first, verify the target is the
-user-scoped AgentFold state directory, then remove only the intended
+user-scoped AgentFold compatibility state directory, then remove only the intended
 `reliability/<repository-id>` directory. Removing the active session journal can
 discard pending restart recovery, so do not remove it while work may be active.
-AgentFold does not provide an automatic repair or clear command in this release.
+BriefOnce does not provide an automatic repair or clear command in this release.
 
 ## Privacy model
 
@@ -103,7 +104,7 @@ client text. Reliability state never contains:
   report.
 - **Unknown**: no observed event establishes freshness.
 
-AgentFold never infers decisions, blockers, validation, or next actions during
+BriefOnce never infers decisions, blockers, validation, or next actions during
 recovery.
 
 ## Deterministic quality ratings
@@ -117,7 +118,7 @@ recovery.
   semantic state was reused/absent, or lifecycle continuity is incomplete.
 - **Poor**: recovery failed or remains pending, no usable checkpoint exists for
   changed work, or an error-level continuity issue remains.
-- **Unknown**: AgentFold has observed no lifecycle activity.
+- **Unknown**: BriefOnce has observed no lifecycle activity.
 
 The JSON report includes stable reason codes supporting the rating.
 

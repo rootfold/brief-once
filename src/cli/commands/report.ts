@@ -75,14 +75,14 @@ export function registerReportCommand(
         ...(options.agent === undefined ? {} : { agentOverride: options.agent }),
       });
 
-      writeLine(output, "AgentFold report");
+      writeLine(output, "BriefOnce report");
       writeLine(output);
       for (const diagnostic of plan.diagnostics) {
         writeLine(output, formatDiagnostic(diagnostic, { color: output.useColor }));
       }
 
       if (plan.exitCode !== 0) {
-        throw new CliCommandError(plan.exitCode, "AgentFold report could not be applied");
+        throw new CliCommandError(plan.exitCode, "BriefOnce report could not be applied");
       }
 
       if (plan.status !== "ready") {

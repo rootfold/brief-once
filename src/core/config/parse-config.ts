@@ -18,7 +18,7 @@ export class ConfigValidationError extends Error {
     }));
     const details = issues.map((issue) => `- ${issue.path}: ${issue.message}`).join("\n");
 
-    super(`Invalid AgentFold configuration:\n${details}`);
+    super(`Invalid BriefOnce configuration:\n${details}`);
     this.name = "ConfigValidationError";
     this.issues = issues;
   }

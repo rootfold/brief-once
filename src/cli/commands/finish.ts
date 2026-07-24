@@ -19,6 +19,7 @@ import type { StdinReader } from "../input/stdin-reader.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
 import { recordCliReliability } from "../../integrations/reliability/record-cli-event.js";
+import { productBrand } from "../../product-brand.js";
 
 export interface FinishDependencies {
   readonly fileSystem: FileSystem;
@@ -60,7 +61,7 @@ function changedPathCount(plan: Extract<FinishPlan, { status: "ready" }>): numbe
 }
 
 function writePlan(output: CliOutput, plan: FinishPlan): void {
-  writeLine(output, "AgentFold finish");
+  writeLine(output, `${productBrand.productName} finish`);
   writeLine(output);
   for (const item of plan.diagnostics) {
     writeLine(output, formatDiagnostic(item, { color: output.useColor }));
@@ -103,7 +104,10 @@ export function registerFinishCommand(
       });
       writePlan(output, plan);
       if (plan.exitCode !== 0) {
-        throw new CliCommandError(plan.exitCode, "AgentFold task finish could not proceed");
+        throw new CliCommandError(
+          plan.exitCode,
+          `${productBrand.productName} task finish could not proceed`,
+        );
       }
       if (plan.status !== "ready") return;
       if (options.yes !== true) {
@@ -125,8 +129,12 @@ export function registerFinishCommand(
         writeLine(output, formatDiagnostic(item, { color: output.useColor }));
       }
       if (result.exitCode !== 0) {
-        throw new CliCommandError(result.exitCode, "AgentFold task finish could not be persisted");
+        throw new CliCommandError(
+          result.exitCode,
+          `${productBrand.productName} task finish could not be persisted`,
+        );
       }
+      writeLine(output, `${productBrand.productName} task completed.`);
       for (const item of await recordCliReliability({
         repositoryRoot: plan.repositoryRoot,
         fileSystem: dependencies.fileSystem,

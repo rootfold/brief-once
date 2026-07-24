@@ -256,7 +256,7 @@ export class AgentFoldServiceCoordinator {
           "AFREL003",
           "warning",
           "The persistent session journal could not be updated; the lifecycle operation still succeeded.",
-          "Review the private AgentFold user-state directory.",
+          "Review the private AgentFold compatibility user-state directory.",
         ),
       ];
     }

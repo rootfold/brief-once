@@ -45,7 +45,7 @@ export function registerDisconnectCommand(
         writeLine(output, `Unsupported connector host: ${host}`);
         throw new CliCommandError(2, "Unsupported connector host");
       }
-      writeLine(output, `AgentFold ${host === "codex" ? "Codex" : "Antigravity"} disconnect`);
+      writeLine(output, `BriefOnce ${host === "codex" ? "Codex" : "Antigravity"} disconnect`);
       writeLine(output);
       if (host === "antigravity") {
         const plan = await prepareAntigravityDisconnect(dependencies.antigravity, options.surface);
@@ -96,6 +96,6 @@ export function registerDisconnectCommand(
           writeLine(output, formatDiagnostic(item, { color: output.useColor }));
         if (result.exitCode !== 0) throw new CliCommandError(result.exitCode, "Disconnect failed");
       }
-      writeLine(output, "The shared AgentFold service was left running.");
+      writeLine(output, "The shared BriefOnce service was left running.");
     });
 }

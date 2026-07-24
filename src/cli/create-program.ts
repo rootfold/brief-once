@@ -7,6 +7,7 @@ import type { ProcessRunner } from "../core/process/process-runner.js";
 import type { AntigravityConnectorDependencies } from "../integrations/connectors/antigravity/antigravity-connector.js";
 import type { CodexConnectorDependencies } from "../integrations/connectors/codex/codex-connector.js";
 import { packageVersion } from "../package-metadata.js";
+import { productBrand, productDescription } from "../product-brand.js";
 import { registerCheckpointCommand } from "./commands/checkpoint.js";
 import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerFinishCommand } from "./commands/finish.js";
@@ -44,8 +45,8 @@ export function createProgram(options: CreateProgramOptions): Command {
   const program = new Command();
 
   program
-    .name("agentfold")
-    .description("Keep project context portable across coding agents")
+    .name(productBrand.primaryCommand)
+    .description(productDescription)
     .version(options.version ?? packageVersion)
     .option("--debug", "show stack traces for unexpected errors")
     .showSuggestionAfterError()
@@ -54,6 +55,7 @@ export function createProgram(options: CreateProgramOptions): Command {
       writeErr: (text) => options.output.writeError(text),
     })
     .exitOverride()
+    .addHelpText("beforeAll", `${productBrand.productName}\n\n${productBrand.tagline}\n\n`)
     .action(() => {
       program.outputHelp();
     });

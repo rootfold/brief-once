@@ -239,7 +239,7 @@ export async function prepareCheckpoint(
           code: "AFCP018",
           severity: "error",
           message: "The active task is invalid and cannot be checkpointed.",
-          suggestion: "Correct the active state; AgentFold did not modify it.",
+          suggestion: "Correct the active state; BriefOnce did not modify it.",
         },
         ...loadedState.diagnostics,
       ],
@@ -307,7 +307,7 @@ export async function prepareCheckpoint(
           code: "AFCP009",
           severity: "warning",
           message: "Local checkpoint state is not ignored by Git.",
-          suggestion: "Add only .agentfold/state/ to .gitignore; AgentFold did not edit it.",
+          suggestion: "Add only .agentfold/state/ to .gitignore; BriefOnce did not edit it.",
         });
       }
     }

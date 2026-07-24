@@ -39,7 +39,7 @@ export async function recordCliReliability(
         severity: "warning",
         message:
           "Reliability metadata could not be persisted; the CLI lifecycle operation still succeeded.",
-        suggestion: "Review the private AgentFold user-state directory.",
+        suggestion: "Review the private AgentFold compatibility user-state directory.",
       },
     ];
   }

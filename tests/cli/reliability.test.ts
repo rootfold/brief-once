@@ -154,7 +154,7 @@ describe("reliability CLI", () => {
     const before = await readFile(currentPath, "utf8");
     const output = captureOutput();
     expect(await runCli(["node", "agentfold", "reliability"], options(fixture, output))).toBe(0);
-    expect(output.stdout()).toContain("AgentFold reliability");
+    expect(output.stdout()).toContain("BriefOnce reliability");
     expect(output.stdout()).toContain("Codex");
     expect(output.stdout()).toContain("Observed lifecycle completion: 100%");
     expect(output.stdout()).toContain("Continuity quality");
@@ -224,7 +224,7 @@ describe("reliability CLI", () => {
         options(fixture, output),
       ),
     ).toBe(0);
-    expect(output.stdout()).toContain("No AgentFold lifecycle activity");
+    expect(output.stdout()).toContain("No BriefOnce lifecycle activity");
     expect(output.stdout()).toContain("AFREL017");
   });
 

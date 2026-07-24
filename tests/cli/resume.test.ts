@@ -140,7 +140,7 @@ describe("resume CLI stdout", () => {
     const exitCode = await runCli(["node", "agentfold", "resume"], options(fixture, captured));
 
     expect(exitCode).toBe(0);
-    expect(captured.stdout()).toMatch(/^# AgentFold continuation packet\n/u);
+    expect(captured.stdout()).toMatch(/^# BriefOnce continuation packet\n/u);
     expect(captured.stdout()).not.toContain("AgentFold resume\n");
     expect(captured.stdout()).toContain("## Agent-reported conclusions");
     expect(captured.stdout()).toContain("## Automatically observed Git facts");
@@ -159,7 +159,7 @@ describe("resume CLI stdout", () => {
       options(fixture, markdown),
     );
     expect(markdownExit).toBe(0);
-    expect(markdown.stdout()).toMatch(/^# AgentFold/u);
+    expect(markdown.stdout()).toMatch(/^# BriefOnce/u);
 
     const json = captureOutput();
     const jsonExit = await runCli(
@@ -322,7 +322,7 @@ describe("resume CLI failure and output behavior", () => {
       output: noHistoryOutput.output,
     });
     expect(noHistoryExit).toBe(6);
-    expect(noHistoryOutput.stderr()).toContain("Run agentfold checkpoint");
+    expect(noHistoryOutput.stderr()).toContain("Run b1 checkpoint");
 
     const missing = await createResumeFixture(temporaryDirectories);
     await missing.fileSystem.remove(

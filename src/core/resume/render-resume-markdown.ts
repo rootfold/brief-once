@@ -268,7 +268,7 @@ export function renderResumeMarkdown(input: ResumePacket): string {
     "\n- Untracked-file contents were not inspected and are excluded from line totals.\n\n### Recent commits\n\n" +
     (recentCommits.length === 0 ? "No recent commits were recorded." : recentCommits.join("\n"));
   const sections = [
-    "# AgentFold continuation packet",
+    "# BriefOnce continuation packet",
     checkpointLines.join("\n"),
     assignment,
     "## Project\n\n" + projectLines.join("\n"),
@@ -276,7 +276,7 @@ export function renderResumeMarkdown(input: ResumePacket): string {
     observed,
     ...(commands.length === 0 ? [] : ["## Project commands\n\n" + commands.join("\n")]),
     ...(safety.length === 0 ? [] : ["## Safety constraints\n\n" + safety.join("\n")]),
-    "## Completion requirement\n\nBefore ending the new session, submit a concise structured AgentFold report covering completed work, work in progress, decisions, failed attempts, blockers, reported validation, next actions, and assumptions. Include conclusions only—never private chain of thought, secrets, complete conversations, or terminal transcripts.",
+    "## Completion requirement\n\nBefore ending the new session, submit a concise structured BriefOnce report covering completed work, work in progress, decisions, failed attempts, blockers, reported validation, next actions, and assumptions. Include conclusions only—never private chain of thought, secrets, complete conversations, or terminal transcripts.",
   ];
   const output = sections.join("\n\n").trimEnd() + "\n";
   if (output.length > resumePacketLimits.maximumMarkdownCharacters) {

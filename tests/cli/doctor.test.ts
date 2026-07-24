@@ -161,7 +161,7 @@ describe("doctor installation checks", () => {
       expect.objectContaining({
         code: "AFD004",
         severity: "warning",
-        message: expect.stringContaining("partial AgentFold installation"),
+        message: expect.stringContaining("partial BriefOnce installation"),
       }),
     );
     await expect(testFixture.fileSystem.readText(path.join(context, "project.md"))).resolves.toBe(

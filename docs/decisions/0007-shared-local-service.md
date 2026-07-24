@@ -1,5 +1,8 @@
 # 0007: Shared user-level local service
 
+> AgentFold was renamed BriefOnce. Compatibility identifiers described in this
+> decision remain unchanged.
+
 - Status: accepted
 - Date: 2026-07-21
 

@@ -34,7 +34,7 @@ export function safeUnexpectedDiagnostic(): Diagnostic {
   return {
     code: "AFMCP014",
     severity: "error",
-    message: "AgentFold could not complete the tool operation safely.",
+    message: "BriefOnce could not complete the tool operation safely.",
     suggestion: "Review safe stderr diagnostics in debug mode and retry.",
   };
 }

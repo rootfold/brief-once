@@ -96,7 +96,7 @@ export async function prepareAntigravityDisconnect(
   });
   if (context.status === "error") {
     return failed(6, [
-      diagnostic("AFCN003", "error", "Disconnect requires an initialized AgentFold repository."),
+      diagnostic("AFCN003", "error", "Disconnect requires an initialized BriefOnce repository."),
     ]);
   }
   const stateDirectory = resolveConnectorStateDirectory(platform, dependencies.stateDirectory);
@@ -308,14 +308,14 @@ export async function prepareAntigravityDisconnect(
       ...configTargets.map(() => ({
         kind: "remove_entry" as const,
         target: "<user-config>/mcp_config.json",
-        description: "Remove the proven AgentFold MCP entry and preserve unrelated configuration",
+        description: "Remove the proven BriefOnce MCP entry and preserve unrelated configuration",
       })),
       ...(removeRule && ruleOriginal !== undefined
         ? [
             {
               kind: "remove_rule" as const,
               target: antigravityRuleRelativePath,
-              description: "Remove the proven AgentFold workspace continuity rule",
+              description: "Remove the proven BriefOnce workspace continuity rule",
             },
           ]
         : []),
@@ -394,7 +394,7 @@ export async function applyAntigravityDisconnect(
       status: "removed",
       exitCode: 0,
       diagnostics: [
-        diagnostic("AFCN038", "success", "The AgentFold Antigravity connector was removed safely."),
+        diagnostic("AFCN038", "success", "The BriefOnce Antigravity connector was removed safely."),
       ],
     };
   } catch {

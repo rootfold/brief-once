@@ -11,8 +11,26 @@ import type { LaunchDescriptor } from "./connector-types.js";
 
 const packageDescriptorSchema = z
   .object({
-    name: z.literal("@rootfold/agentfold"),
-    bin: z.union([z.string().min(1), z.object({ agentfold: z.string().min(1) }).passthrough()]),
+    name: z.enum(["@rootfold/brief-once", "@rootfold/agentfold"]),
+    bin: z.union([
+      z.string().min(1),
+      z
+        .object({
+          b1: z.string().min(1).optional(),
+          briefonce: z.string().min(1).optional(),
+          "brief-once": z.string().min(1).optional(),
+          agentfold: z.string().min(1).optional(),
+        })
+        .passthrough()
+        .refine(
+          (value) =>
+            value.b1 !== undefined ||
+            value.briefonce !== undefined ||
+            value["brief-once"] !== undefined ||
+            value.agentfold !== undefined,
+          "A supported BriefOnce CLI alias is required.",
+        ),
+    ]),
   })
   .passthrough();
 
@@ -44,10 +62,17 @@ async function findPackageRoot(
         const parsed = packageDescriptorSchema.parse(
           JSON.parse((await fileSystem.readText(packagePath)).replace(/^\uFEFF/u, "")),
         );
-        const relativeEntry = typeof parsed.bin === "string" ? parsed.bin : parsed.bin.agentfold;
+        const relativeEntry =
+          typeof parsed.bin === "string"
+            ? parsed.bin
+            : (parsed.bin.b1 ??
+              parsed.bin.briefonce ??
+              parsed.bin["brief-once"] ??
+              parsed.bin.agentfold);
+        if (relativeEntry === undefined) continue;
         return { root: directory, cliEntry: path.resolve(directory, relativeEntry) };
       } catch {
-        // A different package boundary is not an AgentFold installation.
+        // A different package boundary is not a compatible BriefOnce installation.
       }
     }
     const parent = path.dirname(directory);
@@ -73,14 +98,14 @@ export async function resolveAgentFoldLaunchDescriptor(
   const modulePath = input.modulePath ?? fileURLToPath(import.meta.url);
   const packageLocation = await findPackageRoot(input.fileSystem, modulePath);
   if (packageLocation === undefined) {
-    throw new Error("The installed AgentFold package boundary could not be resolved.");
+    throw new Error("The installed BriefOnce package boundary could not be resolved.");
   }
   if ((await input.fileSystem.entryType(executable)) !== "file") {
-    throw new Error("The Node.js executable for AgentFold is missing or unreadable.");
+    throw new Error("The Node.js executable for BriefOnce is missing or unreadable.");
   }
   if ((await input.fileSystem.entryType(packageLocation.cliEntry)) !== "file") {
     throw new Error(
-      "The production AgentFold CLI entry is missing; run the AgentFold build first.",
+      "The production BriefOnce CLI entry is missing; run the BriefOnce build first.",
     );
   }
   if (input.allowTemporaryPath !== true) {
@@ -89,7 +114,7 @@ export async function resolveAgentFoldLaunchDescriptor(
       relativeToTemporary === "" ||
       (!relativeToTemporary.startsWith(`..${path.sep}`) && !path.isAbsolute(relativeToTemporary))
     ) {
-      throw new Error("A temporary AgentFold build cannot be installed into host configuration.");
+      throw new Error("A temporary BriefOnce build cannot be installed into host configuration.");
     }
   }
   const loaded = await input.processRunner.run(
@@ -100,7 +125,7 @@ export async function resolveAgentFoldLaunchDescriptor(
     },
   );
   if (loaded.exitCode !== 0) {
-    throw new Error("The production AgentFold CLI entry could not be loaded.");
+    throw new Error("The production BriefOnce CLI entry could not be loaded.");
   }
   const base = { command: executable, argsPrefix: [packageLocation.cliEntry] };
   return { ...base, fingerprint: fingerprintLaunchDescriptor(base) };

@@ -103,7 +103,7 @@ export async function verifyAntigravityConnection(
       diagnostic(
         "AFCN020",
         "error",
-        "Connector verification requires an initialized AgentFold repository.",
+        "Connector verification requires an initialized BriefOnce repository.",
         "Run agentfold init and restore all canonical context files.",
       ),
     ]);
@@ -125,7 +125,7 @@ export async function verifyAntigravityConnection(
         "AFCN021",
         "error",
         "The Antigravity connector ownership record is invalid.",
-        "Inspect the user-scoped AgentFold connector state before reconnecting.",
+        "Inspect the user-scoped AgentFold compatibility connector state before reconnecting.",
       ),
     ]);
   }
@@ -170,7 +170,7 @@ export async function verifyAntigravityConnection(
           diagnostic(
             "AFCN024",
             "error",
-            "The installed AgentFold MCP entry differs from its ownership fingerprint.",
+            "The installed BriefOnce MCP entry differs from its ownership fingerprint.",
             "Review the host configuration manually; verification never rewrites it.",
           ),
         ]);
@@ -183,8 +183,8 @@ export async function verifyAntigravityConnection(
         diagnostic(
           "AFCN025",
           "error",
-          "The installed AgentFold executable descriptor is stale.",
-          "Preview a connector update after rebuilding or reinstalling AgentFold.",
+          "The installed BriefOnce executable descriptor is stale.",
+          "Preview a connector update after rebuilding or reinstalling BriefOnce.",
         ),
       ]);
     }
@@ -192,7 +192,7 @@ export async function verifyAntigravityConnection(
     await validateAntigravityRuleBoundary(input.fileSystem, context.repositoryRoot, rulePath);
     if (!(await input.fileSystem.exists(rulePath))) {
       return invalidResult(1, [
-        diagnostic("AFCN026", "error", "The AgentFold workspace rule is missing."),
+        diagnostic("AFCN026", "error", "The BriefOnce workspace rule is missing."),
       ]);
     }
     const rule = await input.fileSystem.readText(rulePath);
@@ -201,7 +201,7 @@ export async function verifyAntigravityConnection(
         diagnostic(
           "AFCN027",
           "error",
-          "The AgentFold workspace rule was modified after installation.",
+          "The BriefOnce workspace rule was modified after installation.",
         ),
       ]);
     }
@@ -240,7 +240,7 @@ export async function verifyAntigravityConnection(
       diagnostic(
         "AFCN031",
         "error",
-        "The configured AgentFold MCP process could not be verified safely.",
+        "The configured BriefOnce MCP process could not be verified safely.",
         "Inspect the executable, refresh Antigravity MCP servers, and retry verification.",
       ),
     ]);

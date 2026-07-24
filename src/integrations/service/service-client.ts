@@ -143,7 +143,7 @@ class NodeAgentFoldServiceClient implements AgentFoldServiceClient {
         chunks.push(chunk);
       });
       socket.on("error", () =>
-        fail(new ServiceClientError("AFSV013", "The AgentFold local service is unavailable.")),
+        fail(new ServiceClientError("AFSV013", "The BriefOnce local service is unavailable.")),
       );
       socket.on("end", () => {
         if (settled) return;
@@ -243,7 +243,7 @@ export async function connectAgentFoldServiceClient(
     if (!(await input.fileSystem.exists(location.directory))) {
       return {
         status: "unavailable",
-        diagnostics: [diagnostic("AFSV004", "info", "The AgentFold service is not running.")],
+        diagnostics: [diagnostic("AFSV004", "info", "The BriefOnce service is not running.")],
       };
     }
     const realDirectory = await input.fileSystem.realPath(location.directory);
@@ -254,7 +254,7 @@ export async function connectAgentFoldServiceClient(
           diagnostic(
             "AFSV005",
             "error",
-            "The AgentFold runtime directory is an unsafe symbolic link.",
+            "The BriefOnce runtime directory is an unsafe symbolic link.",
           ),
         ],
       };
@@ -264,7 +264,7 @@ export async function connectAgentFoldServiceClient(
     if (metadata === undefined) {
       return {
         status: "unavailable",
-        diagnostics: [diagnostic("AFSV004", "info", "The AgentFold service is not running.")],
+        diagnostics: [diagnostic("AFSV004", "info", "The BriefOnce service is not running.")],
       };
     }
     const expectedEndpoint = createServiceEndpoint(realDirectory, location.endpointKind);
@@ -318,7 +318,7 @@ export async function connectAgentFoldServiceClient(
         diagnostic(
           clientError?.code ?? "AFSV013",
           "error",
-          clientError?.message ?? "The AgentFold local service could not be reached.",
+          clientError?.message ?? "The BriefOnce local service could not be reached.",
         ),
       ],
     };
@@ -362,7 +362,7 @@ export async function checkAgentFoldServiceAvailability(
         diagnostic(
           error instanceof ServiceClientError ? error.code : "AFSV013",
           "error",
-          "The AgentFold local service could not be queried.",
+          "The BriefOnce local service could not be queried.",
         ),
       ],
     };

@@ -61,7 +61,7 @@ export async function createMcpApplicationContext(
   } catch {
     return startupFailure(
       "The MCP workspace could not be resolved.",
-      "Start AgentFold from an accessible directory or pass --workspace.",
+      "Start BriefOnce from an accessible directory or pass --workspace.",
     );
   }
 

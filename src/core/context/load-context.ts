@@ -258,7 +258,7 @@ export async function loadCanonicalContext(
       code: "AFC009",
       severity: "error",
       message: `Could not determine the working directory: ${errorMessage(error)}`,
-      suggestion: "Run AgentFold from an accessible directory.",
+      suggestion: "Run BriefOnce from an accessible directory.",
     });
     return failure(diagnostics);
   }

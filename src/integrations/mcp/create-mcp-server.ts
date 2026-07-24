@@ -28,6 +28,8 @@ import {
 } from "./tool-schemas.js";
 
 export const agentFoldMcpInstructions = [
+  "Use BriefOnce for substantive repository-changing work.",
+  "BriefOnce currently exposes compatibility MCP tools using the agentfold_* namespace.",
   "Call agentfold_open_session before repository work.",
   "Continue an active task only when its continuation packet matches the user's request.",
   "Call agentfold_begin_task only for clearly requested new work when no active task exists.",
@@ -135,7 +137,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.getStatus,
     {
-      title: "Get AgentFold status",
+      title: "Get BriefOnce status",
       description: "Read initialization, active task, checkpoint, and next-operation status.",
       inputSchema: getStatusInputSchema,
       outputSchema: mcpResultSchema,
@@ -146,7 +148,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.getContext,
     {
-      title: "Get AgentFold context",
+      title: "Get BriefOnce context",
       description: "Read bounded canonical project context without source files.",
       inputSchema: getContextInputSchema,
       outputSchema: mcpResultSchema,
@@ -157,7 +159,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.openSession,
     {
-      title: "Open AgentFold session",
+      title: "Open BriefOnce session",
       description: "Open an in-memory session and obtain task or continuation status.",
       inputSchema: openSessionInputSchema,
       outputSchema: mcpResultSchema,
@@ -168,7 +170,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.beginTask,
     {
-      title: "Begin AgentFold task",
+      title: "Begin BriefOnce task",
       description: "Create validated active task state for an open MCP session.",
       inputSchema: beginTaskInputSchema,
       outputSchema: mcpResultSchema,
@@ -179,7 +181,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.reportProgress,
     {
-      title: "Report AgentFold progress",
+      title: "Report BriefOnce progress",
       description: "Merge validated semantic engineering progress into active task state.",
       inputSchema: reportProgressInputSchema,
       outputSchema: mcpResultSchema,
@@ -190,7 +192,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.createCheckpoint,
     {
-      title: "Create AgentFold checkpoint",
+      title: "Create BriefOnce checkpoint",
       description: "Capture bounded Git facts and semantic state in immutable history.",
       inputSchema: createCheckpointInputSchema,
       outputSchema: mcpResultSchema,
@@ -201,7 +203,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.finishTask,
     {
-      title: "Finish AgentFold task",
+      title: "Finish BriefOnce task",
       description: "Create a final checkpoint, archive the completed task, and clear active state.",
       inputSchema: finishTaskInputSchema,
       outputSchema: mcpResultSchema,
@@ -212,7 +214,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.getResumePacket,
     {
-      title: "Get AgentFold resume packet",
+      title: "Get BriefOnce resume packet",
       description: "Read a bounded continuation packet from immutable checkpoint history.",
       inputSchema: getResumePacketInputSchema,
       outputSchema: mcpResultSchema,
@@ -223,7 +225,7 @@ export function createAgentFoldMcpServer(input: CreateAgentFoldMcpServerInput): 
   server.registerTool(
     agentFoldMcpToolNames.closeSession,
     {
-      title: "Close AgentFold session",
+      title: "Close BriefOnce session",
       description: "Optionally report, checkpoint, resume, then close the in-memory session.",
       inputSchema: closeSessionInputSchema,
       outputSchema: mcpResultSchema,

@@ -1,44 +1,60 @@
-# AgentFold
+# BriefOnce
 
-> **One project context. Every coding agent. Every session.**
+### Brief once. Continue with any agent.
 
-AgentFold is a local-first, open-source CLI that keeps project instructions and active development progress synchronized across coding agents.
+Codex starts the task. Antigravity continues it.
+You do not explain the project twice.
 
-Developers often move between Codex, Claude Code, Google Antigravity, Gemini CLI, GitHub Copilot, Cursor, Windsurf, Cline, Roo Code, OpenCode, and other tools because each agent has different strengths, free limits, availability, and pricing. The problem is that every switch loses context:
-
-- The new agent does not know the architecture.
-- Project rules are duplicated across incompatible files.
-- Decisions made in the previous session are missing.
-- Completed work is rediscovered.
-- The next agent repeats exploration and may reverse earlier decisions.
-
-AgentFold gives the repository a shared, tool-independent memory layer.
+BriefOnce is a local-first continuity layer for AI coding tools. It preserves
+what was completed, what failed, what was decided, what remains, and how the
+work was validated.
 
 ```text
 Stable project knowledge ──> generated instructions for each agent
 Current work state       ──> compact checkpoints and handoff packets
 ```
 
-## Install using node package manager
+## Installation
+
+The intended public installation command is:
 
 ```bash
-npm install --global @rootfold/agentfold
+npm install --global @rootfold/brief-once
 ```
+
+The package may not yet be available for every development build. This
+repository does not claim publication until an npm release is completed.
+
+## Quick start
 
 ```bash
-npx @rootfold/agentfold init
-npx @rootfold/agentfold start "Add GitHub OAuth"
-npx @rootfold/agentfold checkpoint --agent antigravity
-npx @rootfold/agentfold resume --for codex
+cd your-project
+
+b1 init --yes
+b1 connect codex --yes
+b1 connect antigravity --yes
+
+b1 verify codex
+b1 verify antigravity
 ```
 
-No paid model is required. No cloud account is required. The core workflow is deterministic and runs locally.
+BriefOnce was previously named AgentFold. The `agentfold` command remains
+available temporarily. Existing `.agentfold` project state and `agentfold_*`
+MCP tools remain fully supported. The readable `briefonce` and package-name
+`brief-once` aliases execute the same CLI.
+
+See the [AgentFold-to-BriefOnce migration guide](docs/migration/agentfold-to-briefonce.md)
+and [rebrand architecture decision](docs/decisions/0012-briefonce-public-rebrand.md)
+for the compatibility contract.
+
+No paid model, model API, or cloud account is required for the deterministic
+core workflow.
 
 ---
 
 ## Project status
 
-AgentFold is currently in the **design and early implementation stage**.
+BriefOnce is currently in the **design and early implementation stage**.
 
 This README doubles as the product specification and engineering source of truth for the first public release. Until dedicated specification documents are introduced, implementation decisions must remain consistent with this file.
 
@@ -68,7 +84,7 @@ Static instruction files solve only part of the problem. They can tell an agent 
 - What is currently broken
 - What the next agent should do first
 
-AgentFold manages both kinds of context.
+BriefOnce manages both kinds of context.
 
 ### Durable project context
 
@@ -104,7 +120,7 @@ Short-lived progress needed to continue the current task:
 
 ## Product goals
 
-AgentFold must:
+BriefOnce must:
 
 1. Maintain one source of truth for project-level agent instructions.
 2. Generate compatible instruction files for multiple coding agents.
@@ -126,7 +142,7 @@ The first release will not:
 - Build another autonomous coding agent.
 - Proxy prompts or model API calls.
 - Scrape proprietary chat histories from coding tools.
-- Upload source code to an AgentFold server.
+- Upload source code to an BriefOnce server.
 - Replace Git, issues, pull requests, or project-management tools.
 - Store complete source-code diffs inside handoff files.
 - Automatically make architectural decisions.
@@ -134,7 +150,7 @@ The first release will not:
 - Depend on an LLM for core functionality.
 - Attempt perfect bidirectional conversion between every proprietary format.
 
-AgentFold coordinates context. It does not perform the coding task itself.
+BriefOnce coordinates context. It does not perform the coding task itself.
 
 ---
 
@@ -154,11 +170,11 @@ Agents should receive the smallest useful context, not an entire documentation d
 
 ### Safe by default
 
-AgentFold must never silently destroy an existing instruction file. Existing content is preserved unless the user explicitly authorizes replacement.
+BriefOnce must never silently destroy an existing instruction file. Existing content is preserved unless the user explicitly authorizes replacement.
 
 ### Human-readable storage
 
-Project context and work state use Markdown and YAML so developers can inspect, edit, review, and version them without AgentFold.
+Project context and work state use Markdown and YAML so developers can inspect, edit, review, and version them without BriefOnce.
 
 ### Agent-neutral design
 
@@ -170,7 +186,7 @@ A checkpoint must clearly separate verified work, assumptions, failed attempts, 
 
 ---
 
-## How AgentFold works
+## How BriefOnce works
 
 ```text
                            ┌────────────────────────┐
@@ -196,11 +212,11 @@ A checkpoint must clearly separate verified work, assumptions, failed attempts, 
    AGENTS.md   CLAUDE.md   GEMINI.md       Terminal     Clipboard    Markdown
 ```
 
-AgentFold does not need access to an agent's private conversation. Instead, it stores the important result of the session in a shared repository state file.
+BriefOnce does not need access to an agent's private conversation. Instead, it stores the important result of the session in a shared repository state file.
 
 ---
 
-## Quick start
+## Implemented workflow
 
 The currently implemented workflow is documented in
 [docs/getting-started.md](docs/getting-started.md), including the local stdio
@@ -213,15 +229,15 @@ Install the public CLI globally, or use the scoped package directly through
 `npx`:
 
 ```bash
-npm install --global @rootfold/agentfold
-agentfold --version
-agentfold reliability
+npm install --global @rootfold/brief-once
+b1 --version
+b1 reliability
 
 # One-off execution without a global install
-npx --yes @rootfold/agentfold --version
+npx --yes @rootfold/brief-once --version
 ```
 
-### Connect AgentFold to Codex
+### Connect BriefOnce to Codex
 
 Run the connector from an initialized repository. Preview is read-only; `--yes`
 is required to install the shared MCP registration and the repository-scoped
@@ -229,34 +245,33 @@ Codex continuity instructions.
 
 ```bash
 # Preview the exact changes
-pnpm agentfold connect codex --dry-run
+b1 connect codex --dry-run
 
 # Connect the Codex CLI, IDE extension, and desktop app configuration
-pnpm agentfold connect codex --surface all --yes
+b1 connect codex --surface all --yes
 
 # Verify ownership, the local service, the MCP handshake, and all nine tools
-pnpm agentfold verify codex
+b1 verify codex
 ```
 
-When using an installed AgentFold package, replace `pnpm agentfold` with
-`agentfold`. After installation or an update, restart Codex or its IDE extension,
-then confirm that `agentfold` is enabled under MCP servers. In the Codex CLI/TUI,
-use `/mcp` to inspect the connection.
+After installation or an update, restart Codex or its IDE extension, then
+confirm that the compatibility server key `agentfold` is enabled under MCP
+servers. In the Codex CLI/TUI, use `/mcp` to inspect the connection.
 
-### Use AgentFold from Codex
+### Use BriefOnce from Codex
 
 The connector adds a managed `AGENTS.md` region that asks Codex to use the MCP
 lifecycle for substantive repository work. You can verify the connection with a
 normal prompt:
 
 ```text
-Verify that the AgentFold MCP server is connected and call agentfold_get_status.
+Verify that the BriefOnce MCP server is connected and call agentfold_get_status.
 ```
 
 Start focused work without manually copying project context:
 
 ```text
-Use AgentFold for this task. Open a session, continue a relevant active task if
+Use BriefOnce for this task. Open a session, continue a relevant active task if
 one exists, and otherwise begin a task named "Add GitHub OAuth". Read the bounded
 project context, implement the change, validate it, report concise progress, and
 finish the task when its scope is complete.
@@ -265,7 +280,7 @@ finish the task when its scope is complete.
 Continue existing work in a later Codex session or another connected host:
 
 ```text
-Open an AgentFold session and continue the active task from its latest
+Open a BriefOnce session and continue the active task from its latest
 checkpoint. Verify repository facts before editing, then report new conclusions
 and close the session with checkpoint creation enabled.
 ```
@@ -283,13 +298,13 @@ The tool lifecycle behind those prompts is:
 9. `agentfold_close_session` can report, checkpoint, and close unfinished work.
 
 Do not include secrets, private reasoning, full conversations, or terminal
-transcripts in task titles or progress reports. AgentFold never commits, pushes,
+transcripts in task titles or progress reports. BriefOnce never commits, pushes,
 resets, stashes, or changes branches through these MCP tools.
 
-### Initialize AgentFold
+### Initialize BriefOnce
 
 ```bash
-npx @rootfold/agentfold init
+npx @rootfold/brief-once init
 ```
 
 `init` should:
@@ -307,13 +322,13 @@ npx @rootfold/agentfold init
 ### Generate agent instructions
 
 ```bash
-npx @rootfold/agentfold sync
+npx @rootfold/brief-once sync
 ```
 
 Example output:
 
 ```text
-AgentFold sync
+BriefOnce sync
 
 ✓ Loaded .agentfold/config.yaml
 ✓ Rendered AGENTS.md
@@ -330,7 +345,7 @@ Estimated shared context: 1,142 tokens
 ### Start a task
 
 ```bash
-npx @rootfold/agentfold start "Implement GitHub OAuth"
+npx @rootfold/brief-once start "Implement GitHub OAuth"
 ```
 
 This creates or resets:
@@ -342,7 +357,7 @@ This creates or resets:
 ### Save progress before switching agents
 
 ```bash
-npx @rootfold/agentfold checkpoint --agent antigravity
+npx @rootfold/brief-once checkpoint --agent antigravity
 ```
 
 `checkpoint` gathers safe Git metadata and requests a concise work summary. It records:
@@ -362,7 +377,7 @@ It must not store the full diff by default.
 ### Continue with another agent
 
 ```bash
-npx @rootfold/agentfold resume --for codex
+npx @rootfold/brief-once resume --for codex
 ```
 
 Example output:
@@ -406,62 +421,62 @@ The packet can be printed, copied to the clipboard, written as Markdown, or retu
 ## Planned CLI
 
 ```text
-agentfold init
-agentfold import
-agentfold sync
-agentfold doctor
-agentfold status
+b1 init
+b1 import
+b1 sync
+b1 doctor
+b1 status
 
-agentfold start <task>
-agentfold checkpoint
-agentfold resume
-agentfold handoff
-agentfold finish
+b1 start <task>
+b1 checkpoint
+b1 resume
+b1 handoff
+b1 finish
 ```
 
-### `agentfold init`
+### `b1 init`
 
-Create the canonical AgentFold structure.
+Create the canonical BriefOnce structure.
 
 ```bash
-agentfold init
-agentfold init --yes
-agentfold init --from-existing
+b1 init
+b1 init --yes
+b1 init --from-existing
 ```
 
-### `agentfold import`
+### `b1 import`
 
 Import existing instruction files into a draft canonical configuration.
 
 ```bash
-agentfold import
-agentfold import AGENTS.md CLAUDE.md
+b1 import
+b1 import AGENTS.md CLAUDE.md
 ```
 
 Import must not assume duplicated statements are automatically correct. Conflicts should be reported for review.
 
-### `agentfold sync`
+### `b1 sync`
 
 Render enabled target files.
 
 ```bash
-agentfold sync
-agentfold sync --target codex
-agentfold sync --target claude
-agentfold sync --check
-agentfold sync --dry-run
+b1 sync
+b1 sync --target codex
+b1 sync --target claude
+b1 sync --check
+b1 sync --dry-run
 ```
 
 `--check` exits with a non-zero status when generated files are stale, making it suitable for CI.
 
-### `agentfold doctor`
+### `b1 doctor`
 
 Analyze configuration and generated context.
 
 ```bash
-agentfold doctor
-agentfold doctor --json
-agentfold doctor --fix
+b1 doctor
+b1 doctor --json
+b1 doctor --fix
 ```
 
 Initial checks:
@@ -480,76 +495,76 @@ Initial checks:
 - Unknown adapter options
 - Invalid configuration schema
 
-### `agentfold status`
+### `b1 status`
 
-Show current AgentFold health and task state.
+Show current BriefOnce health and task state.
 
 ```bash
-agentfold status
+b1 status
 ```
 
-### `agentfold start`
+### `b1 start`
 
 Start a new task.
 
 ```bash
-agentfold start "Add GitHub OAuth"
-agentfold start "Fix issue #42" --agent codex
+b1 start "Add GitHub OAuth"
+b1 start "Fix issue #42" --agent codex
 ```
 
 Starting a new task while another is active requires confirmation or `--force`.
 
-### `agentfold checkpoint`
+### `b1 checkpoint`
 
 Record a safe progress snapshot.
 
 ```bash
-agentfold checkpoint
-agentfold checkpoint --agent antigravity
-agentfold checkpoint --summary-file checkpoint.md
-agentfold checkpoint --stdin
+b1 checkpoint
+b1 checkpoint --agent antigravity
+b1 checkpoint --summary-file checkpoint.md
+b1 checkpoint --stdin
 ```
 
 Machine-friendly input will allow an agent to submit a structured checkpoint without an interactive prompt.
 
-### `agentfold resume`
+### `b1 resume`
 
 Create a compact continuation packet.
 
 ```bash
-agentfold resume
-agentfold resume --for codex
-agentfold resume --for claude
-agentfold resume --format markdown
-agentfold resume --format json
-agentfold resume --copy
+b1 resume
+b1 resume --for codex
+b1 resume --for claude
+b1 resume --format markdown
+b1 resume --format json
+b1 resume --copy
 ```
 
-### `agentfold handoff`
+### `b1 handoff`
 
 Create a transition packet and optionally update target instructions.
 
 ```bash
-agentfold handoff --from antigravity --to codex
-agentfold handoff --to claude --copy
+b1 handoff --from antigravity --to codex
+b1 handoff --to claude --copy
 ```
 
 For the MVP, `handoff` may internally combine `checkpoint` and `resume`.
 
-### `agentfold finish`
+### `b1 finish`
 
 Preview or atomically archive a completed active task. Remaining in-progress work or blockers prevent completion; structured resolution entries must match exactly.
 
 ```bash
-agentfold finish
-agentfold finish --dry-run
-agentfold finish --agent codex --yes
-Get-Content completion.json -Raw | agentfold finish --stdin --yes
+b1 finish
+b1 finish --dry-run
+b1 finish --agent codex --yes
+Get-Content completion.json -Raw | b1 finish --stdin --yes
 ```
 
 ---
 
-## Repository structure created by AgentFold
+## Repository structure created by BriefOnce
 
 ```text
 .agentfold/
@@ -588,11 +603,11 @@ Get-Content completion.json -Raw | agentfold finish --stdin --yes
 version: 1
 
 project:
-  name: AgentFold
+  name: BriefOnce
   summary: >
     A local-first CLI that synchronizes coding-agent instructions
     and preserves task progress across agent switches.
-  repository: rootfold/agentfold
+  repository: rootfold/brief-once
 
 runtime:
   node: ">=20"
@@ -687,7 +702,7 @@ The schema may evolve before `1.0.0`, but migrations must be explicit and tested
 
 ## Active state format
 
-`.agentfold/state/current.md` should remain readable without AgentFold.
+`.agentfold/state/current.md` should remain readable without BriefOnce.
 
 ```md
 ---
@@ -815,14 +830,14 @@ Adapters must not directly write files. The core writer handles:
 
 ## Safe file generation
 
-AgentFold supports two generation strategies.
+BriefOnce supports two generation strategies.
 
 ### Whole-file ownership
 
-Used when AgentFold created the file and owns all content.
+Used when BriefOnce created the file and owns all content.
 
 ```md
-<!-- Generated by AgentFold. Edit .agentfold/context instead. -->
+<!-- Generated by BriefOnce. Edit .agentfold/context instead. -->
 ```
 
 ### Managed-region ownership
@@ -882,7 +897,7 @@ When output exceeds the configured budget, preserve content in this order:
 7. Secondary documentation
 8. Examples and explanatory prose
 
-AgentFold should report what was omitted.
+BriefOnce should report what was omitted.
 
 ---
 
@@ -954,7 +969,7 @@ A finding should stop generation when the content would be copied into an output
 
 ## Git behavior
 
-AgentFold uses Git metadata but does not mutate history.
+BriefOnce uses Git metadata but does not mutate history.
 
 Allowed by default:
 
@@ -976,7 +991,7 @@ Require confirmation or an explicit command:
 - Stash changes
 - Modify hooks
 
-AgentFold must never run destructive Git commands automatically.
+BriefOnce must never run destructive Git commands automatically.
 
 ---
 
@@ -1012,7 +1027,7 @@ The CLI must warn before tracked state contains suspicious sensitive information
 
 ## Internal architecture
 
-AgentFold begins as one TypeScript package with internal modules, not a premature monorepo.
+BriefOnce begins as one TypeScript package with internal modules, not a premature monorepo.
 
 ```text
 src/
@@ -1195,11 +1210,11 @@ Fixtures should cover:
 
 ## MVP scope
 
-The first public usable release must prove both halves of AgentFold.
+The first public usable release must prove both halves of BriefOnce.
 
 ### Instruction synchronization
 
-- [ ] `agentfold init`
+- [ ] `b1 init`
 - [ ] Canonical configuration
 - [ ] Modular context files
 - [ ] Codex adapter
@@ -1207,23 +1222,23 @@ The first public usable release must prove both halves of AgentFold.
 - [ ] Antigravity adapter
 - [ ] Generic Markdown adapter
 - [ ] Safe managed regions
-- [ ] `agentfold sync`
-- [ ] `agentfold sync --check`
+- [ ] `b1 sync`
+- [ ] `b1 sync --check`
 
 ### Cross-agent continuity
 
-- [ ] `agentfold start`
+- [ ] `b1 start`
 - [ ] Current task state
 - [ ] Git metadata capture
-- [ ] `agentfold checkpoint`
+- [ ] `b1 checkpoint`
 - [ ] Checkpoint history
-- [ ] `agentfold resume`
+- [ ] `b1 resume`
 - [ ] Target-specific handoff packet
-- [ ] `agentfold finish`
+- [ ] `b1 finish`
 
 ### Quality and safety
 
-- [ ] `agentfold doctor`
+- [ ] `b1 doctor`
 - [ ] Basic conflict detection
 - [ ] Stale-output detection
 - [ ] Context-budget reporting
@@ -1240,8 +1255,8 @@ The first public usable release must prove both halves of AgentFold.
 
 `v0.1.0` is ready when a developer can:
 
-1. Execute AgentFold through `npx`.
-2. Run `agentfold init` in an existing repository.
+1. Execute BriefOnce through `npx`.
+2. Run `b1 init` in an existing repository.
 3. Review and edit the canonical context.
 4. Generate instructions for Codex, Claude Code, Antigravity, and generic Markdown.
 5. Start a task.
@@ -1341,15 +1356,15 @@ The first public usable release must prove both halves of AgentFold.
 
 ## Why not only use `AGENTS.md`?
 
-`AGENTS.md` is an excellent shared convention for durable repository guidance, and AgentFold should support it first.
+`AGENTS.md` is an excellent shared convention for durable repository guidance, and BriefOnce should support it first.
 
-AgentFold adds three missing capabilities:
+BriefOnce adds three missing capabilities:
 
 1. **Generation:** produce other tool-specific formats from the same source.
 2. **Drift detection:** show when files disagree or are outdated.
 3. **Live continuity:** preserve the current task, decisions, validation, and next actions across sessions.
 
-AgentFold complements open instruction formats rather than replacing them.
+BriefOnce complements open instruction formats rather than replacing them.
 
 ---
 
@@ -1378,33 +1393,33 @@ The MVP uses structured checkpoints and Git metadata. Optional AI summarization 
 
 ```bash
 # Begin work with Antigravity
-agentfold start "Build repository import"
-agentfold resume --for antigravity --copy
+b1 start "Build repository import"
+b1 resume --for antigravity --copy
 
 # Work normally...
 
 # Save progress before the free limit is reached
-agentfold checkpoint --agent antigravity
+b1 checkpoint --agent antigravity
 
 # Continue with Codex
-agentfold resume --for codex --copy
+b1 resume --for codex --copy
 
 # Work normally...
 
 # Save progress again
-agentfold checkpoint --agent codex
+b1 checkpoint --agent codex
 
 # Verify project context
-agentfold doctor
-agentfold sync --check
+b1 doctor
+b1 sync --check
 
 # Finish the task
-agentfold finish
+b1 finish
 ```
 
 ---
 
-## Instructions for coding agents working on AgentFold
+## Instructions for coding agents working on BriefOnce
 
 When an AI coding agent is asked to build this repository, it must:
 
@@ -1483,7 +1498,7 @@ chore: configure release workflow
 
 ## Versioning
 
-AgentFold uses semantic versioning.
+BriefOnce uses semantic versioning.
 
 Before `1.0.0`, configuration and CLI behavior may change. Breaking changes must include:
 
@@ -1496,15 +1511,15 @@ Before `1.0.0`, configuration and CLI behavior may change. Breaking changes must
 
 ## License
 
-AgentFold is released under the **MIT License**. See [LICENSE](LICENSE).
+BriefOnce is released under the **MIT License**. See [LICENSE](LICENSE).
 
 ---
 
 ## Project identity
 
 **Organization:** RootFold  
-**Project:** AgentFold  
-**Repository:** `rootfold/agentfold`
+**Project:** BriefOnce
+**Repository:** `rootfold/brief-once`
 
 ### Primary tagline
 
@@ -1516,7 +1531,7 @@ AgentFold is released under the **MIT License**. See [LICENSE](LICENSE).
 
 ### One-sentence description
 
-> AgentFold synchronizes project instructions and preserves live development progress across Codex, Claude Code, Antigravity, Copilot, Gemini, Cursor, and other coding agents.
+> BriefOnce synchronizes project instructions and preserves live development progress across Codex, Claude Code, Antigravity, Copilot, Gemini, Cursor, and other coding agents.
 
 ---
 
@@ -1524,4 +1539,4 @@ AgentFold is released under the **MIT License**. See [LICENSE](LICENSE).
 
 A developer should be able to stop working in one coding agent, open another, and continue without re-explaining the project or rediscovering the current task.
 
-That is the standard every AgentFold feature should serve.
+That is the standard every BriefOnce feature should serve.

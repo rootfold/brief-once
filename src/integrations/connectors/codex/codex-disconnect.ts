@@ -101,7 +101,7 @@ export async function prepareCodexDisconnect(
   });
   if (context.status === "error") {
     return failed(6, [
-      diagnostic("AFCD003", "error", "Disconnect requires an initialized AgentFold repository."),
+      diagnostic("AFCD003", "error", "Disconnect requires an initialized BriefOnce repository."),
     ]);
   }
   const stateDirectory = resolveConnectorStateDirectory(platform, dependencies.stateDirectory);
@@ -317,7 +317,7 @@ export async function prepareCodexDisconnect(
             {
               kind: "remove_entry" as const,
               target: "~/.codex/config.toml",
-              description: "Remove only the proven AgentFold TOML region",
+              description: "Remove only the proven BriefOnce TOML region",
             },
           ]),
       ...(agentsTarget === undefined
@@ -326,7 +326,7 @@ export async function prepareCodexDisconnect(
             {
               kind: "remove_instructions" as const,
               target: "AGENTS.md",
-              description: "Remove only the proven AgentFold instruction region",
+              description: "Remove only the proven BriefOnce instruction region",
             },
           ]),
       {
@@ -342,7 +342,7 @@ export async function prepareCodexDisconnect(
             diagnostic(
               "AFCD057",
               "info",
-              "The global AgentFold MCP entry is retained for another connected repository or surface.",
+              "The global BriefOnce MCP entry is retained for another connected repository or surface.",
             ),
           ]
         : []),
@@ -423,7 +423,7 @@ export async function applyCodexDisconnect(
       status: "removed",
       exitCode: 0,
       diagnostics: [
-        diagnostic("AFCD058", "success", "The AgentFold Codex connector was removed safely."),
+        diagnostic("AFCD058", "success", "The BriefOnce Codex connector was removed safely."),
       ],
     };
   } catch {

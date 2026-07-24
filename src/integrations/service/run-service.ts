@@ -58,7 +58,7 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
       ...(input.platform === undefined ? {} : { platform: input.platform }),
     });
   } catch {
-    input.logger.error("AFSV005: The AgentFold runtime directory is invalid or unsafe.");
+    input.logger.error("AFSV005: The BriefOnce runtime directory is invalid or unsafe.");
     return 1;
   }
 
@@ -69,7 +69,7 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     ...(input.platform === undefined ? {} : { platform: input.platform }),
   });
   if (existing.status === "connected") {
-    input.logger.debug("AgentFold service is already running.");
+    input.logger.debug("BriefOnce service is already running.");
     return 0;
   }
   if (
@@ -92,7 +92,7 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     ) {
       await input.fileSystem.remove(staleMetadata.endpoint);
     }
-    input.logger.debug("Confirmed stale AgentFold service metadata was removed.");
+    input.logger.debug("Confirmed stale BriefOnce service metadata was removed.");
   }
 
   const endpoint = createServiceEndpoint(runtime.realDirectory, runtime.endpointKind);
@@ -201,11 +201,11 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     });
     metadataWritten = true;
     monitor.start();
-    input.logger.error("AFSV001: AgentFold local service started.");
+    input.logger.error("AFSV001: BriefOnce local service started.");
     await service.closed;
     return 0;
   } catch {
-    input.logger.error("AFSV003: The AgentFold service failed to start safely.");
+    input.logger.error("AFSV003: The BriefOnce service failed to start safely.");
     await shutdown();
     return 1;
   } finally {
@@ -228,6 +228,6 @@ export async function runAgentFoldService(input: RunAgentFoldServiceInput): Prom
     } else if (serviceStarted && runtime.endpointKind === "unix-socket") {
       await input.fileSystem.remove(endpoint);
     }
-    input.logger.error("AFSV007: AgentFold local service stopped.");
+    input.logger.error("AFSV007: BriefOnce local service stopped.");
   }
 }

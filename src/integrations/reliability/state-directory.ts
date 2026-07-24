@@ -31,7 +31,7 @@ export function resolveReliabilityStateDirectory(
   if (platform.platform === "win32") {
     const localAppData = platform.environment.LOCALAPPDATA;
     if (localAppData === undefined || localAppData.trim().length === 0) {
-      throw new Error("LOCALAPPDATA is unavailable for AgentFold reliability state.");
+      throw new Error("LOCALAPPDATA is unavailable for BriefOnce reliability state.");
     }
     return path.win32.join(localAppData, "AgentFold", "state");
   }
@@ -98,11 +98,15 @@ export async function prepareReliabilityStateDirectory(
     unsafe === true ||
     (unsafe === undefined && !samePlatformPath(requested, realDirectory, platform.platform))
   ) {
-    throw new Error("The AgentFold reliability state directory resolves through a symbolic link.");
+    throw new Error(
+      "The BriefOnce compatibility reliability state directory resolves through a symbolic link.",
+    );
   }
   await (input.restrictDirectory ?? defaultRestrictDirectory)(realDirectory);
   if ((await input.gitRepositoryLocator?.findRoot(realDirectory)) !== undefined) {
-    throw new Error("The AgentFold reliability state directory must remain outside repositories.");
+    throw new Error(
+      "The BriefOnce compatibility reliability state directory must remain outside repositories.",
+    );
   }
   return realDirectory;
 }
@@ -129,10 +133,14 @@ export async function inspectReliabilityStateDirectory(
     unsafe === true ||
     (unsafe === undefined && !samePlatformPath(requested, realDirectory, platform.platform))
   ) {
-    throw new Error("The AgentFold reliability state directory resolves through a symbolic link.");
+    throw new Error(
+      "The BriefOnce compatibility reliability state directory resolves through a symbolic link.",
+    );
   }
   if ((await input.gitRepositoryLocator?.findRoot(realDirectory)) !== undefined) {
-    throw new Error("The AgentFold reliability state directory is inside a repository.");
+    throw new Error(
+      "The BriefOnce compatibility reliability state directory is inside a repository.",
+    );
   }
   return { status: "available", directory: realDirectory };
 }

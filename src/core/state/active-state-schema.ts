@@ -41,7 +41,7 @@ export const checkpointHistoryMetadataSchema = z
 export const activeTaskSchema = z
   .object({
     schemaVersion: z.literal(1),
-    taskId: z.string().regex(/^AF-\d{8}-\d{3}$/u, "Must be a valid AgentFold task ID"),
+    taskId: z.string().regex(/^AF-\d{8}-\d{3}$/u, "Must be a valid BriefOnce task ID"),
     title: taskTitleSchema,
     status: z.enum(taskStatuses),
     startedAt: timestampSchema,

@@ -246,7 +246,7 @@ export async function prepareCodexConnection(
       diagnostic(
         "AFCD003",
         "error",
-        "The current repository is not a complete AgentFold installation.",
+        "The current repository is not a complete BriefOnce installation.",
         "Run agentfold doctor and restore canonical context before connecting Codex.",
       ),
     ]);
@@ -307,8 +307,8 @@ export async function prepareCodexConnection(
       diagnostic(
         "AFCD007",
         "error",
-        "A stable AgentFold executable descriptor could not be verified.",
-        "Build or reinstall AgentFold, then retry the preview.",
+        "A stable BriefOnce executable descriptor could not be verified.",
+        "Build or reinstall BriefOnce, then retry the preview.",
       ),
     ]);
   }
@@ -352,7 +352,7 @@ export async function prepareCodexConnection(
         "AFCD009",
         "error",
         configEdit.reason,
-        "Review the current entry manually; AgentFold did not overwrite it.",
+        "Review the current entry manually; BriefOnce did not overwrite it.",
       ),
     ]);
   }
@@ -409,7 +409,7 @@ export async function prepareCodexConnection(
     actions.push({
       kind: agentsOriginal === undefined ? "create_instructions" : "update_instructions",
       target: "AGENTS.md",
-      description: "Install the Codex AgentFold lifecycle instruction region",
+      description: "Install the Codex BriefOnce lifecycle instruction region",
     });
   }
   const partialPlan = {
@@ -578,7 +578,7 @@ export async function applyCodexConnection(
       exitCode: 0,
       verification,
       diagnostics: [
-        diagnostic("AFCD014", "success", "The AgentFold Codex connector was installed."),
+        diagnostic("AFCD014", "success", "The BriefOnce Codex connector was installed."),
         ...verification.diagnostics,
       ],
     };

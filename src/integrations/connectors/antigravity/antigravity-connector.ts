@@ -192,7 +192,7 @@ export async function prepareAntigravityConnection(
       diagnostic(
         "AFCN003",
         "error",
-        "The current repository is not a complete AgentFold installation.",
+        "The current repository is not a complete BriefOnce installation.",
         "Run agentfold doctor and restore canonical context before connecting a host.",
       ),
     ]);
@@ -246,8 +246,8 @@ export async function prepareAntigravityConnection(
       diagnostic(
         "AFCN005",
         "error",
-        "A stable AgentFold executable descriptor could not be verified.",
-        "Build or reinstall AgentFold, then retry the preview.",
+        "A stable BriefOnce executable descriptor could not be verified.",
+        "Build or reinstall BriefOnce, then retry the preview.",
       ),
     ]);
   }
@@ -332,7 +332,7 @@ export async function prepareAntigravityConnection(
       diagnostic(
         "AFCN009",
         "error",
-        "The AgentFold continuity-rule path contains user-owned or modified content.",
+        "The BriefOnce continuity-rule path contains user-owned or modified content.",
         "Resolve `.agents/rules/agentfold-continuity.md` manually; it was not overwritten.",
       ),
     ]);
@@ -360,7 +360,7 @@ export async function prepareAntigravityConnection(
     actions.push({
       kind: rulePlan.action === "create" ? "create_rule" : "update_rule",
       target: antigravityRuleRelativePath,
-      description: "Install the AgentFold workspace continuity rule",
+      description: "Install the BriefOnce workspace continuity rule",
     });
   }
   const partialPlan = {
@@ -605,7 +605,7 @@ export async function applyAntigravityConnection(
       exitCode: 0,
       verification,
       diagnostics: [
-        diagnostic("AFCN011", "success", "The AgentFold Antigravity connector was installed."),
+        diagnostic("AFCN011", "success", "The BriefOnce Antigravity connector was installed."),
         ...verification.diagnostics,
       ],
     };

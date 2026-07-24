@@ -1,6 +1,6 @@
 # Local MCP integration
 
-`agentfold mcp` exposes the existing AgentFold continuity engine to MCP-capable desktop applications, IDEs, and coding agents. MCP itself runs locally over stdio: there is no public network listener, telemetry, source upload, remote service, or AI model call. It can delegate to the authenticated [shared local service](../service.md) over a named pipe or Unix-domain socket.
+`b1 mcp` exposes the existing BriefOnce continuity engine to MCP-capable desktop applications, IDEs, and coding agents. MCP itself runs locally over stdio: there is no public network listener, telemetry, source upload, remote service, or AI model call. It can delegate to the authenticated [shared local service](../service.md) over a named pipe or Unix-domain socket.
 
 ## Available tools
 
@@ -20,24 +20,24 @@ Successful lifecycle outcomes record only bounded reliability metadata. Shared
 service mode persists interruption recovery across service restarts. Embedded
 mode records basic events through the same host-neutral recorder but cannot
 recover its in-memory sessions after the MCP process exits. Inspect observed
-activity with `agentfold reliability`; no reliability MCP tool is added.
+activity with `b1 reliability`; no reliability MCP tool is added.
 
-One MCP process serves exactly one Git repository. The workspace is resolved and locked before the first workspace-dependent tool call, tools cannot switch it, and normal results contain only repository-relative paths. AgentFold never stages, commits, resets, stashes, pushes, creates branches, edits hooks, or changes remotes.
+One MCP process serves exactly one Git repository. The workspace is resolved and locked before the first workspace-dependent tool call, tools cannot switch it, and normal results contain only repository-relative paths. BriefOnce never stages, commits, resets, stashes, pushes, creates branches, edits hooks, or changes remotes.
 
 ## Run locally
 
 During development:
 
 ```bash
-pnpm agentfold mcp --workspace .
+pnpm b1 mcp --workspace .
 ```
 
 Service selection defaults to `auto`:
 
 ```bash
-pnpm agentfold mcp --workspace . --service auto
-pnpm agentfold mcp --workspace . --service required
-pnpm agentfold mcp --workspace . --service disabled
+pnpm b1 mcp --workspace . --service auto
+pnpm b1 mcp --workspace . --service required
+pnpm b1 mcp --workspace . --service disabled
 ```
 
 `auto` chooses the service only at startup and warns on stderr before embedded fallback. `required` is intended for future installed connectors. `disabled` preserves the original per-process in-memory session behavior. A lost service connection never triggers a mid-session fallback.
@@ -45,7 +45,7 @@ pnpm agentfold mcp --workspace . --service disabled
 Installed connectors can request a bounded service start before the MCP handshake:
 
 ```bash
-agentfold mcp --service required --ensure-service --workspace-mode auto
+b1 mcp --service required --ensure-service --workspace-mode auto
 ```
 
 `--ensure-service` is valid only with `auto` or `required`. It reuses a compatible service or invokes the existing local start operation and waits for readiness; it does not install an operating-system service or login startup item.
@@ -57,7 +57,7 @@ Workspace modes are:
 - `roots`: require exactly one valid initialized repository from client `file://` roots.
 - `cwd`: resolve the initialized repository containing the process current directory.
 
-Client roots are treated only as discovery input. AgentFold decodes and validates file URIs, resolves real paths and Git roots, rejects ambiguity and paths outside the selected repository, and locks the first canonical repository for the process lifetime. A roots-change notification never silently switches the workspace.
+Client roots are treated only as discovery input. BriefOnce decodes and validates file URIs, resolves real paths and Git roots, rejects ambiguity and paths outside the selected repository, and locks the first canonical repository for the process lifetime. A roots-change notification never silently switches the workspace.
 
 From a production build:
 
@@ -68,7 +68,7 @@ node dist/cli.js mcp --workspace /absolute/path/to/project
 An installed package uses the existing binary:
 
 ```bash
-agentfold mcp --workspace /absolute/path/to/project
+b1 mcp --workspace /absolute/path/to/project
 ```
 
 Add `--debug` for safe lifecycle messages on standard error. Standard output remains exclusively MCP JSON-RPC traffic. `NO_COLOR` is respected by the surrounding CLI, and MCP protocol results never include ANSI formatting.
@@ -88,7 +88,7 @@ Host application configuration formats vary. This unverified generic example ill
 }
 ```
 
-For an AgentFold development checkout after `pnpm build`:
+For an BriefOnce development checkout after `pnpm build`:
 
 ```json
 {
@@ -96,7 +96,7 @@ For an AgentFold development checkout after `pnpm build`:
     "agentfold": {
       "command": "node",
       "args": [
-        "/absolute/path/to/AgentFold/dist/cli.js",
+        "/absolute/path/to/BriefOnce/dist/cli.js",
         "mcp",
         "--workspace",
         "/absolute/path/to/project"

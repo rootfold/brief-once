@@ -112,7 +112,7 @@ export async function startAgentFoldService(
       status: "already_running",
       exitCode: 0,
       serviceStatus: await initial.client.status(),
-      diagnostics: [diagnostic("AFSV002", "info", "AgentFold service is already running.")],
+      diagnostics: [diagnostic("AFSV002", "info", "BriefOnce service is already running.")],
     };
   }
   if (initial.status === "incompatible") {
@@ -126,7 +126,7 @@ export async function startAgentFoldService(
       status: "unavailable",
       exitCode: 1,
       diagnostics: [
-        diagnostic("AFSV003", "error", "The current AgentFold executable could not be resolved."),
+        diagnostic("AFSV003", "error", "The current BriefOnce executable could not be resolved."),
       ],
     };
   }
@@ -157,7 +157,7 @@ export async function startAgentFoldService(
         serviceStatus: await connected.client.status(),
         diagnostics: [
           ...connected.diagnostics,
-          diagnostic("AFSV001", "success", "AgentFold service started."),
+          diagnostic("AFSV001", "success", "BriefOnce service started."),
         ],
       };
     }
@@ -173,7 +173,7 @@ export async function startAgentFoldService(
       diagnostic(
         "AFSV003",
         "error",
-        "AgentFold service did not become ready before the startup timeout.",
+        "BriefOnce service did not become ready before the startup timeout.",
       ),
     ],
   };
@@ -201,7 +201,7 @@ export async function inspectAgentFoldService(
     status: "already_stopped",
     exitCode: 0,
     diagnostics: [
-      diagnostic("AFSV004", "info", "AgentFold service is not running."),
+      diagnostic("AFSV004", "info", "BriefOnce service is not running."),
       ...(stale
         ? [diagnostic("AFSV006", "info", "Confirmed stale service metadata was removed.")]
         : []),
@@ -224,7 +224,7 @@ export async function stopAgentFoldService(
       status: "already_stopped",
       exitCode: 0,
       diagnostics: [
-        diagnostic("AFSV004", "info", "AgentFold service is already stopped."),
+        diagnostic("AFSV004", "info", "BriefOnce service is already stopped."),
         ...(stale
           ? [diagnostic("AFSV006", "info", "Confirmed stale service metadata was removed.")]
           : []),
@@ -242,7 +242,7 @@ export async function stopAgentFoldService(
       return {
         status: "stopped",
         exitCode: 0,
-        diagnostics: [diagnostic("AFSV007", "success", "AgentFold service stopped.")],
+        diagnostics: [diagnostic("AFSV007", "success", "BriefOnce service stopped.")],
       };
     }
   }
@@ -250,7 +250,7 @@ export async function stopAgentFoldService(
     status: "unavailable",
     exitCode: 1,
     diagnostics: [
-      diagnostic("AFSV008", "error", "AgentFold service did not stop before the timeout."),
+      diagnostic("AFSV008", "error", "BriefOnce service did not stop before the timeout."),
     ],
   };
 }

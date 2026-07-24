@@ -114,16 +114,16 @@ export async function runMcpServer(input: RunMcpServerInput): Promise<number> {
       for (const diagnostic of serviceConnection.diagnostics) {
         input.logger.error(`${diagnostic.code}: ${diagnostic.message}`);
       }
-      input.logger.debug("MCP tools are delegated to the shared AgentFold service.");
+      input.logger.debug("MCP tools are delegated to the shared BriefOnce service.");
     } else if (serviceMode === "required") {
       for (const diagnostic of serviceConnection.diagnostics) {
         input.logger.error(`${diagnostic.code}: ${diagnostic.message}`);
       }
-      input.logger.error("AFSV032: The required shared AgentFold service is unavailable.");
+      input.logger.error("AFSV032: The required shared BriefOnce service is unavailable.");
       return 1;
     } else {
       input.logger.error(
-        "AFSV031: Shared AgentFold service unavailable; using embedded mode without cross-application automation.",
+        "AFSV031: Shared BriefOnce service unavailable; using embedded mode without cross-application automation.",
       );
     }
   }

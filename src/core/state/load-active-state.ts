@@ -67,7 +67,7 @@ export async function loadActiveState(
               code: "AFS009",
               severity: "error",
               message: error.message,
-              suggestion: "Correct the active state file; AgentFold did not modify it.",
+              suggestion: "Correct the active state file; BriefOnce did not modify it.",
             },
           ],
         };

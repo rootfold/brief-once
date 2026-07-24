@@ -11,6 +11,7 @@ import {
   fingerprintAntigravityMcpEntry,
 } from "../../src/integrations/connectors/antigravity/antigravity-launch-entry.js";
 import {
+  agentFoldAntigravityContinuityRule,
   antigravityContinuityRule,
   antigravityRuleOwnershipMarker,
   fingerprintAntigravityRule,
@@ -173,6 +174,8 @@ describe("Antigravity continuity rule", () => {
     );
     expect(prepareAntigravityRule(crlfRule)).toMatchObject({ action: "identical" });
     for (const legacy of [
+      agentFoldAntigravityContinuityRule,
+      agentFoldAntigravityContinuityRule.replace(/\n/gu, "\r\n"),
       previousAntigravityContinuityRule,
       previousAntigravityContinuityRule.replace(/\n/gu, "\r\n"),
       previousAntigravityContinuityRule.replace(/\n/gu, "\r"),
@@ -190,6 +193,14 @@ describe("Antigravity continuity rule", () => {
     expect(prepareAntigravityRule(`${antigravityRuleOwnershipMarker}\n# modified\n`).status).toBe(
       "collision",
     );
+    expect(
+      prepareAntigravityRule(
+        agentFoldAntigravityContinuityRule.replace(
+          "Use AgentFold for substantive coding work",
+          "Use AgentFold for every message",
+        ),
+      ).status,
+    ).toBe("collision");
     expect(
       prepareAntigravityRule(
         previousAntigravityContinuityRule.replace(

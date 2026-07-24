@@ -187,8 +187,8 @@ export async function prepareResume(
             : "No active task exists to resume.",
         suggestion:
           completed.status === "success"
-            ? "Run agentfold start for the next substantive task; completed tasks are not reopened."
-            : "Run agentfold start, report progress, and create a checkpoint first.",
+            ? "Run b1 start for the next substantive task; completed tasks are not reopened."
+            : "Run b1 start, report progress, and create a checkpoint first.",
       },
     ]);
   }
@@ -198,7 +198,7 @@ export async function prepareResume(
         code: "AFR003",
         severity: "error",
         message: "The active task is invalid and cannot be resumed.",
-        suggestion: "Correct the active state; AgentFold did not modify it.",
+        suggestion: "Correct the active state; BriefOnce did not modify it.",
       },
       ...loadedState.diagnostics,
     ]);

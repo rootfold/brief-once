@@ -1,19 +1,19 @@
 # Getting started
 
-AgentFold currently supports safe initialization, canonical project diagnostics, active-task reports, immutable checkpoints, completed-task archives, continuation packets, and a local MCP boundary. Run it from any directory inside an existing Git repository.
+BriefOnce currently supports safe initialization, canonical project diagnostics, active-task reports, immutable checkpoints, completed-task archives, continuation packets, and a local MCP boundary. Run it from any directory inside an existing Git repository.
 
 ## Preview initialization
 
 ```bash
-pnpm agentfold init --dry-run
+pnpm b1 init --dry-run
 ```
 
-This resolves the repository root, scans safe root-level metadata, reports existing agent instruction files, and lists the canonical files that would be created. It does not write anything. Running `pnpm agentfold init` without an option is also a conservative preview and tells you to re-run with `--yes`.
+This resolves the repository root, scans safe root-level metadata, reports existing agent instruction files, and lists the canonical files that would be created. It does not write anything. Running `pnpm b1 init` without an option is also a conservative preview and tells you to re-run with `--yes`.
 
 ## Initialize non-interactively
 
 ```bash
-pnpm agentfold init --yes
+pnpm b1 init --yes
 ```
 
 This creates:
@@ -64,7 +64,7 @@ automation:
     minimum_interval_seconds: 30
 ```
 
-Older configuration without this optional section remains valid and receives these defaults only while resolving context; AgentFold does not rewrite it.
+Older configuration without this optional section remains valid and receives these defaults only while resolving context; BriefOnce does not rewrite it.
 
 Reliability settings are also optional and default only in memory:
 
@@ -82,36 +82,38 @@ they do not add files to the repository.
 ## Check project health
 
 ```bash
-pnpm agentfold doctor
+pnpm b1 doctor
 ```
 
 The current doctor checks Git repository presence and `README.md`, then resolves the canonical project context through the same loader future adapters will use. It reports invalid YAML or schema values, missing or empty context files, unsafe paths, and configured paths that do not exist. It does not modify files.
 
-Canonical AgentFold files are intended to be tracked. Initialization does not edit `.gitignore`; future local task state can be ignored separately.
+Canonical BriefOnce files under the retained `.agentfold` compatibility
+namespace are intended to be tracked. Initialization does not edit `.gitignore`;
+future local task state can be ignored separately.
 
 ## Start an active task
 
 Previewing is the default and writes nothing:
 
 ```bash
-pnpm agentfold start "Implement GitHub OAuth"
+pnpm b1 start "Implement GitHub OAuth"
 ```
 
 Create the active task non-interactively:
 
 ```bash
-pnpm agentfold start "Implement GitHub OAuth" --agent codex --yes
+pnpm b1 start "Implement GitHub OAuth" --agent codex --yes
 ```
 
 This atomically creates `.agentfold/state/current.md`. It records a repository-relative working context, the current branch and HEAD commit, and an explicit `null` commit when the repository has no commits. It never creates a branch, stages files, or commits changes. An existing active task is never replaced.
 
-When `state.visibility` is `local`, AgentFold warns if `.agentfold/state/` is not ignored. Add only this path when local task state should remain untracked:
+When `state.visibility` is `local`, BriefOnce warns if `.agentfold/state/` is not ignored. Add only this path when local task state should remain untracked:
 
 ```gitignore
 .agentfold/state/
 ```
 
-AgentFold does not edit `.gitignore` automatically.
+BriefOnce does not edit `.gitignore` automatically.
 
 ## Submit a structured agent report
 
@@ -134,40 +136,40 @@ Create `report.json`:
 PowerShell:
 
 ```powershell
-Get-Content .\report.json -Raw | pnpm agentfold report --stdin
+Get-Content .\report.json -Raw | pnpm b1 report --stdin
 ```
 
 macOS, Linux, and other shells with `cat`:
 
 ```bash
-cat report.json | pnpm agentfold report --stdin
+cat report.json | pnpm b1 report --stdin
 ```
 
 Use `--agent codex` to supply an omitted agent or explicitly override the JSON `agent` field. Reports append and deduplicate semantic progress; they do not replace earlier conclusions. Validation commands are stored as reported text and are never executed.
 
-AgentFold redacts likely secrets before persistence, but developers and coding agents should not submit secrets, private reasoning, complete conversations, or transcripts. Future agent integrations can submit this report structure automatically without exposing private conversations.
+BriefOnce redacts likely secrets before persistence, but developers and coding agents should not submit secrets, private reasoning, complete conversations, or transcripts. Future agent integrations can submit this report structure automatically without exposing private conversations.
 
 ## Create an immutable checkpoint
 
 Capture the active task, its previously reported semantic progress, and the current Git facts:
 
 ```bash
-pnpm agentfold checkpoint
+pnpm b1 checkpoint
 ```
 
 Checkpointing persists by default. Use `--dry-run` to capture and preview the same facts without creating history or updating active state:
 
 ```bash
-pnpm agentfold checkpoint --dry-run
+pnpm b1 checkpoint --dry-run
 ```
 
 An integration can identify itself independently of the last semantic reporting agent:
 
 ```bash
-pnpm agentfold checkpoint --agent codex
+pnpm b1 checkpoint --agent codex
 ```
 
-Git branch, HEAD, staged and unstaged status, repository-relative changed paths, aggregate numstat totals, and recent commit subjects are collected automatically. A path changed in both the index and working tree is counted once as a file, while its two Git numstat layers are summed; these are aggregate layer totals rather than a stored combined diff. Binary paths are counted without line totals. Semantic conclusions come only from earlier `report --stdin` submissions. A Git-only checkpoint is allowed with a warning; AgentFold does not infer decisions, blockers, failures, or next actions from a diff.
+Git branch, HEAD, staged and unstaged status, repository-relative changed paths, aggregate numstat totals, and recent commit subjects are collected automatically. A path changed in both the index and working tree is counted once as a file, while its two Git numstat layers are summed; these are aggregate layer totals rather than a stored combined diff. Binary paths are counted without line totals. Semantic conclusions come only from earlier `report --stdin` submissions. A Git-only checkpoint is allowed with a warning; BriefOnce does not infer decisions, blockers, failures, or next actions from a diff.
 
 History is stored under `.agentfold/state/history/` as deterministic Markdown with YAML front matter. Observed Git facts and agent-reported conclusions remain visibly separate. Checkpoints contain no full diff, source-file content, environment values, terminal transcript, or private reasoning. Untracked files are named but their contents and line counts are not inspected.
 
@@ -178,20 +180,20 @@ Checkpointing never stages or commits files. Running it again without a meaningf
 `checkpoint` preserves unfinished or paused work. `finish` records that the requested scope is complete. Preview is the default and writes nothing:
 
 ```bash
-pnpm agentfold finish
-pnpm agentfold finish --dry-run
+pnpm b1 finish
+pnpm b1 finish --dry-run
 ```
 
 Finish an already-ready active task non-interactively:
 
 ```bash
-pnpm agentfold finish --agent codex --yes
+pnpm b1 finish --agent codex --yes
 ```
 
 For a final report and exact resolutions, pipe structured JSON:
 
 ```powershell
-Get-Content .\completion.json -Raw | pnpm agentfold finish --stdin --yes
+Get-Content .\completion.json -Raw | pnpm b1 finish --stdin --yes
 ```
 
 ```json
@@ -216,16 +218,16 @@ A successful finish creates one immutable `kind: final` checkpoint under `.agent
 Render the latest immutable checkpoint for the active task as Markdown on standard output:
 
 ```bash
-pnpm agentfold resume
+pnpm b1 resume
 ```
 
 Add a small Codex-specific hint, serialize the typed packet as JSON, select a historical checkpoint, or atomically create an output file:
 
 ```bash
-pnpm agentfold resume --for codex
-pnpm agentfold resume --format json
-pnpm agentfold resume --checkpoint CP-001
-pnpm agentfold resume --output handoff.md
+pnpm b1 resume --for codex
+pnpm b1 resume --format json
+pnpm b1 resume --checkpoint CP-001
+pnpm b1 resume --output handoff.md
 ```
 
 Resume follows active-state checkpoint metadata and validates the selected immutable history file. A historical checkpoint can be selected explicitly and is marked as not latest. The command does not rerun Git discovery, read source files, or include complete diffs. Automatically observed Git facts remain separate from earlier agent-reported conclusions, and reused or absent semantic reports are labeled explicitly.
@@ -240,14 +242,14 @@ Reliability inspection is read-only and works even when the shared service is
 stopped:
 
 ```bash
-pnpm agentfold reliability
-pnpm agentfold reliability --host codex
-pnpm agentfold reliability --task AF-20260724-001
-pnpm agentfold reliability --include-events --limit 25
-pnpm agentfold reliability --json
+pnpm b1 reliability
+pnpm b1 reliability --host codex
+pnpm b1 reliability --task AF-20260724-001
+pnpm b1 reliability --include-events --limit 25
+pnpm b1 reliability --json
 ```
 
-Only AgentFold-observed sessions are counted. Private bounded history and
+Only BriefOnce-observed sessions are counted. Private bounded history and
 restart-recovery state live outside the repository and never contain prompt
 text, report text, resume packets, source contents, changed paths, full diffs,
 terminal output, environment values, secrets, tokens, or host configuration.
@@ -259,7 +261,7 @@ restart behavior.
 Start one stdio MCP process for the containing Git repository:
 
 ```bash
-pnpm agentfold mcp --workspace .
+pnpm b1 mcp --workspace .
 ```
 
 The server lets a compatible host open a session, read bounded context, begin a task, report progress, checkpoint, finish, resume, and close the session through the same validated core used by the CLI commands. It has no network listener and writes protocol messages only to standard output. Safe debug lifecycle messages are available with `--debug` on standard error.
@@ -267,10 +269,10 @@ The server lets a compatible host open a session, read bounded context, begin a 
 The default `--service auto` mode uses the shared service when available and otherwise warns on stderr before preserving embedded behavior. For cross-application coordination:
 
 ```bash
-pnpm agentfold service start
-pnpm agentfold service status
-pnpm agentfold mcp --workspace . --service required
-pnpm agentfold service stop
+pnpm b1 service start
+pnpm b1 service status
+pnpm b1 mcp --workspace . --service required
+pnpm b1 service stop
 ```
 
 See [Local MCP integration](integrations/mcp.md) for the tool lifecycle and [Shared local service](service.md) for runtime directories, authentication, leases, automatic switch checkpoints, recovery, and troubleshooting. Running the MCP command alone does not install application-specific configuration.
@@ -280,35 +282,35 @@ See [Local MCP integration](integrations/mcp.md) for the tool lifecycle and [Sha
 Preview the detected Antigravity surface and every proposed change without writing:
 
 ```bash
-pnpm agentfold connect antigravity
-pnpm agentfold connect antigravity --dry-run
+pnpm b1 connect antigravity
+pnpm b1 connect antigravity --dry-run
 ```
 
 Install the MCP registration and workspace continuity rule non-interactively, then verify the owned files and live protocol boundary:
 
 ```bash
-pnpm agentfold connect antigravity --yes
-pnpm agentfold verify antigravity
+pnpm b1 connect antigravity --yes
+pnpm b1 verify antigravity
 ```
 
 Automatic discovery refuses ambiguous host configurations. Use `--surface desktop`, `ide`, `cli`, or `all` when an explicit choice is required. Disconnect is also a preview unless `--yes` is supplied:
 
 ```bash
-pnpm agentfold disconnect antigravity
-pnpm agentfold disconnect antigravity --yes
+pnpm b1 disconnect antigravity
+pnpm b1 disconnect antigravity --yes
 ```
 
-The connector preserves unrelated and secret-bearing host configuration byte-for-byte, keeps restrictive backups outside the repository, and removes only content whose fingerprint still proves AgentFold ownership. It does not change Antigravity approval settings, install an operating-system service, stop the shared service during removal, or claim that the Antigravity UI has ingested the entry. See [Google Antigravity connector](integrations/antigravity.md) for discovery paths, workspace selection, manual refresh, safety, and recovery details.
+The connector preserves unrelated and secret-bearing host configuration byte-for-byte, keeps restrictive backups outside the repository, and removes only content whose fingerprint still proves BriefOnce ownership. It does not change Antigravity approval settings, install an operating-system service, stop the shared service during removal, or claim that the Antigravity UI has ingested the entry. See [Google Antigravity connector](integrations/antigravity.md) for discovery paths, workspace selection, manual refresh, safety, and recovery details.
 
 ## Connect Codex
 
 Preview the shared Codex configuration and repository instruction changes, then install only after review:
 
 ```bash
-pnpm agentfold connect codex
-pnpm agentfold connect codex --dry-run
-pnpm agentfold connect codex --surface all --yes
-pnpm agentfold verify codex
+pnpm b1 connect codex
+pnpm b1 connect codex --dry-run
+pnpm b1 connect codex --surface all --yes
+pnpm b1 verify codex
 ```
 
 Supported surfaces are `auto`, `cli`, `ide`, `app`, and `all`. CLI, IDE, and desktop app share one user-level `config.toml`; each connected Git worktree keeps a separate root `AGENTS.md` managed region. Restart Codex or its IDE extension after installation and confirm `agentfold` is enabled under MCP servers.
@@ -316,8 +318,8 @@ Supported surfaces are `auto`, `cli`, `ide`, `app`, and `all`. CLI, IDE, and des
 Disconnect remains a preview unless `--yes` is supplied:
 
 ```bash
-pnpm agentfold disconnect codex
-pnpm agentfold disconnect codex --yes
+pnpm b1 disconnect codex
+pnpm b1 disconnect codex --yes
 ```
 
 The connector preserves unrelated TOML and `AGENTS.md` content, stores exact config backups outside the repository, retains the global entry while another repository depends on it, and leaves the shared service running. It installs no skill, plugin, hook, IDE extension, OS service, telemetry, or network integration. See [Codex connector](integrations/codex.md) for ownership, worktrees, refresh steps, and limitations.

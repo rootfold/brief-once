@@ -1,5 +1,8 @@
 # ADR 0011: Reliability monitoring and restart recovery
 
+> AgentFold was renamed BriefOnce. Compatibility identifiers described in this
+> decision remain unchanged.
+
 - Status: Accepted
 - Date: 2026-07-24
 

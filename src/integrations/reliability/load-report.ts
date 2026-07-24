@@ -80,7 +80,7 @@ export async function loadReliabilityReport(
           "AFREL014",
           "error",
           "Reliability inspection requires a Git repository.",
-          "Run the command from inside an initialized AgentFold repository.",
+          "Run the command from inside an initialized BriefOnce repository.",
         ),
       ],
     };
@@ -154,7 +154,7 @@ export async function loadReliabilityReport(
           "AFREL004",
           "error",
           "Private reliability state is corrupt or unsafe.",
-          "Review the user-scoped AgentFold state directory; no repository files were changed.",
+          "Review the user-scoped AgentFold compatibility state directory; no repository files were changed.",
         ),
       ],
     };
@@ -210,8 +210,8 @@ export async function loadReliabilityReport(
         input.taskId !== undefined || input.sessionId !== undefined ? "AFREL017" : "AFREL015",
         "info",
         input.host !== undefined || input.taskId !== undefined || input.sessionId !== undefined
-          ? "No matching AgentFold lifecycle activity was found."
-          : "No AgentFold lifecycle activity has been recorded for this repository.",
+          ? "No matching BriefOnce lifecycle activity was found."
+          : "No BriefOnce lifecycle activity has been recorded for this repository.",
       ),
     );
   }

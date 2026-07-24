@@ -173,7 +173,7 @@ export class McpWorkspaceResolver {
           diagnostic(
             "AFMCP017",
             "success",
-            "The AgentFold workspace was resolved through MCP roots.",
+            "The BriefOnce workspace was resolved through MCP roots.",
           ),
           ...(invalidRoot
             ? [
@@ -194,7 +194,7 @@ export class McpWorkspaceResolver {
           diagnostic(
             "AFMCP019",
             "error",
-            "Several initialized AgentFold repositories were exposed through MCP roots.",
+            "Several initialized BriefOnce repositories were exposed through MCP roots.",
             "Open one repository in this MCP process or pass an explicit --workspace.",
           ),
         ],
@@ -206,7 +206,7 @@ export class McpWorkspaceResolver {
         diagnostic(
           "AFMCP020",
           "error",
-          "No initialized AgentFold repository could be resolved from MCP roots.",
+          "No initialized BriefOnce repository could be resolved from MCP roots.",
           "Open an initialized repository or pass --workspace.",
         ),
       ],
@@ -231,7 +231,7 @@ export class McpWorkspaceResolver {
           diagnostic(
             "AFMCP020",
             "error",
-            "The MCP working directory is not an initialized AgentFold repository.",
+            "The MCP working directory is not an initialized BriefOnce repository.",
             "Open an initialized repository or pass --workspace.",
           ),
         ],
@@ -245,7 +245,7 @@ export class McpWorkspaceResolver {
         diagnostic(
           "AFMCP018",
           "success",
-          "The AgentFold workspace was resolved through the MCP working directory.",
+          "The BriefOnce workspace was resolved through the MCP working directory.",
         ),
       ],
     };
@@ -269,8 +269,8 @@ export class McpWorkspaceResolver {
                 diagnostic(
                   "AFMCP020",
                   "error",
-                  "The explicit MCP workspace is not an initialized AgentFold repository.",
-                  "Pass a directory inside an initialized AgentFold Git repository.",
+                  "The explicit MCP workspace is not an initialized BriefOnce repository.",
+                  "Pass a directory inside an initialized BriefOnce Git repository.",
                 ),
               ],
             }
@@ -308,7 +308,7 @@ export class McpWorkspaceResolver {
     return diagnostic(
       "AFMCP021",
       "warning",
-      "MCP roots changed after AgentFold locked this process to a repository.",
+      "MCP roots changed after BriefOnce locked this process to a repository.",
       "Restart the MCP process to select a different repository.",
     );
   }

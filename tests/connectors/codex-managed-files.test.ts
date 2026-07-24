@@ -5,6 +5,7 @@ import {
   prepareCodexAgentsEdit,
   prepareCodexAgentsRemoval,
   renderCodexAgentsRegion,
+  renderAgentFoldCodexAgentsRegion,
   renderLegacyCodexAgentsRegion,
   renderPreviousCodexAgentsRegion,
 } from "../../src/integrations/connectors/codex/codex-agents.js";
@@ -120,7 +121,9 @@ describe("Codex managed configuration files", () => {
     expect(source).toContain("agentfold_report_progress");
     expect(source).toContain("agentfold_finish_task");
     expect(source).toContain("agentfold_close_session");
-    expect(source).toContain("schema=2");
+    expect(source).toContain("schema=3");
+    expect(source).toContain("BriefOnce continuity for Codex");
+    expect(source).toContain("compatibility MCP tools");
     expect(source).toContain("private chain of thought");
     expect(source).toContain("Never commit, push, discard work");
   });
@@ -142,6 +145,10 @@ describe("Codex managed configuration files", () => {
       action: "update",
     });
     expect(prepareCodexAgentsEdit(bytes(renderPreviousCodexAgentsRegion()))).toMatchObject({
+      status: "ready",
+      action: "update",
+    });
+    expect(prepareCodexAgentsEdit(bytes(renderAgentFoldCodexAgentsRegion()))).toMatchObject({
       status: "ready",
       action: "update",
     });

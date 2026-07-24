@@ -15,6 +15,7 @@ import {
 } from "../../core/initialization/initialize.js";
 import { agentFoldPath } from "../../core/initialization/paths.js";
 import type { RepositoryMetadata } from "../../core/scanners/types.js";
+import { productBrand } from "../../product-brand.js";
 import { CliCommandError } from "../command-error.js";
 import type { CliOutput } from "../output/cli-output.js";
 import { writeLine } from "../output/cli-output.js";
@@ -50,7 +51,7 @@ function metadataLines(metadata: RepositoryMetadata): readonly string[] {
 }
 
 function writePlan(output: CliOutput, plan: InitializationPlan): void {
-  writeLine(output, "AgentFold init");
+  writeLine(output, `${productBrand.productName} init`);
   writeLine(output);
 
   for (const diagnostic of plan.diagnostics) {
@@ -88,7 +89,7 @@ export function registerInitCommand(
 ): void {
   program
     .command("init")
-    .description("Safely initialize AgentFold in an existing Git repository")
+    .description(`Safely initialize ${productBrand.productName} in an existing Git repository`)
     .addOption(
       new Option("--dry-run", "preview initialization without writing files").conflicts("yes"),
     )
@@ -98,7 +99,10 @@ export function registerInitCommand(
       writePlan(output, plan);
 
       if (plan.exitCode !== 0) {
-        throw new CliCommandError(plan.exitCode, "AgentFold initialization could not proceed");
+        throw new CliCommandError(
+          plan.exitCode,
+          `${productBrand.productName} initialization could not proceed`,
+        );
       }
 
       if (plan.status !== "ready") {
@@ -139,6 +143,7 @@ export function registerInitCommand(
           writeLine(output);
           writeLine(output, formatDiagnostic(completion, { color: output.useColor }));
         }
+        writeLine(output, `${productBrand.productName} initialized this repository.`);
         return;
       }
 
