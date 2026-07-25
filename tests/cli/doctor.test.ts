@@ -75,7 +75,7 @@ describe("doctor installation checks", () => {
   it("reports missing canonical context files through the canonical loader", async () => {
     const testFixture = await fixture();
     await initializeFixture(testFixture);
-    await rm(path.join(testFixture.root, ".agentfold", "context", "architecture.md"));
+    await rm(path.join(testFixture.root, ".briefonce", "context", "architecture.md"));
 
     const result = await runDoctor(testFixture);
 
@@ -89,11 +89,11 @@ describe("doctor installation checks", () => {
     const testFixture = await fixture();
     await initializeFixture(testFixture);
     await writeFile(
-      path.join(testFixture.root, ".agentfold", "context", "commands.md"),
+      path.join(testFixture.root, ".briefonce", "context", "commands.md"),
       "  \r\n",
       "utf8",
     );
-    const configPath = path.join(testFixture.root, ".agentfold", "config.yaml");
+    const configPath = path.join(testFixture.root, ".briefonce", "config.yaml");
     const config = await testFixture.fileSystem.readText(configPath);
     await writeFile(
       configPath,
@@ -115,7 +115,7 @@ describe("doctor installation checks", () => {
   it("uses invalid-configuration exit code for unsafe configured traversal", async () => {
     const testFixture = await fixture();
     await initializeFixture(testFixture);
-    const configPath = path.join(testFixture.root, ".agentfold", "config.yaml");
+    const configPath = path.join(testFixture.root, ".briefonce", "config.yaml");
     const config = await testFixture.fileSystem.readText(configPath);
     await writeFile(
       configPath,
@@ -133,9 +133,9 @@ describe("doctor installation checks", () => {
 
   it("reports an invalid configuration with exit code 2", async () => {
     const testFixture = await fixture();
-    await mkdir(path.join(testFixture.root, ".agentfold"));
+    await mkdir(path.join(testFixture.root, ".briefonce"));
     await writeFile(
-      path.join(testFixture.root, ".agentfold", "config.yaml"),
+      path.join(testFixture.root, ".briefonce", "config.yaml"),
       "version: 99\n",
       "utf8",
     );
@@ -150,7 +150,7 @@ describe("doctor installation checks", () => {
 
   it("recognizes a partial installation without modifying it", async () => {
     const testFixture = await fixture();
-    const context = path.join(testFixture.root, ".agentfold", "context");
+    const context = path.join(testFixture.root, ".briefonce", "context");
     await mkdir(context, { recursive: true });
     await writeFile(path.join(context, "project.md"), "# Partial\n", "utf8");
 

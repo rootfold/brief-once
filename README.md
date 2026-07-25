@@ -39,12 +39,18 @@ b1 verify antigravity
 ```
 
 BriefOnce was previously named AgentFold. The `agentfold` command remains
-available temporarily. Existing `.agentfold` project state and `agentfold_*`
-MCP tools remain fully supported. The readable `briefonce` and package-name
-`brief-once` aliases execute the same CLI.
+available temporarily. New projects use `.briefonce`; existing `.agentfold`
+projects remain operational and can be migrated explicitly with `b1 migrate`.
+The `agentfold_*` MCP tools remain fully supported. The readable `briefonce`
+and package-name `brief-once` aliases execute the same CLI.
+
+```bash
+b1 migrate          # preview only
+b1 migrate --yes    # atomically rename .agentfold to .briefonce
+```
 
 See the [AgentFold-to-BriefOnce migration guide](docs/migration/agentfold-to-briefonce.md)
-and [rebrand architecture decision](docs/decisions/0012-briefonce-public-rebrand.md)
+and [storage namespace decision](docs/decisions/0013-briefonce-project-storage.md)
 for the compatibility contract.
 
 No paid model, model API, or cloud account is required for the deterministic
@@ -190,7 +196,7 @@ A checkpoint must clearly separate verified work, assumptions, failed attempts, 
 
 ```text
                            ┌────────────────────────┐
-                           │ .agentfold/config.yaml │
+                           │ .briefonce/config.yaml │
                            └────────────┬───────────┘
                                         │
                     ┌───────────────────┴───────────────────┐
@@ -312,7 +318,7 @@ npx @rootfold/brief-once init
 1. Confirm that the current directory is a Git repository.
 2. Inspect safe project metadata.
 3. Detect package managers, languages, frameworks, and common commands.
-4. Create `.agentfold/config.yaml`.
+4. Create `.briefonce/config.yaml`.
 5. Create modular context files.
 6. Ask which agent adapters should be enabled.
 7. Ask whether active state should be local-only or committed.
@@ -330,7 +336,7 @@ Example output:
 ```text
 BriefOnce sync
 
-✓ Loaded .agentfold/config.yaml
+✓ Loaded .briefonce/config.yaml
 ✓ Rendered AGENTS.md
 ✓ Rendered CLAUDE.md
 ✓ Rendered GEMINI.md
@@ -351,7 +357,7 @@ npx @rootfold/brief-once start "Implement GitHub OAuth"
 This creates or resets:
 
 ```text
-.agentfold/state/current.md
+.briefonce/state/current.md
 ```
 
 ### Save progress before switching agents
@@ -567,7 +573,7 @@ Get-Content completion.json -Raw | b1 finish --stdin --yes
 ## Repository structure created by BriefOnce
 
 ```text
-.agentfold/
+.briefonce/
 ├── config.yaml
 ├── context/
 │   ├── project.md
@@ -584,16 +590,16 @@ Get-Content completion.json -Raw | b1 finish --stdin --yes
 
 ### Canonical files
 
-- **`.agentfold/config.yaml`** — machine-readable settings, adapter selection, paths, and behavior.
-- **`.agentfold/context/project.md`** — project purpose, scope, users, and domain terms.
-- **`.agentfold/context/architecture.md`** — system boundaries, packages, data flow, and directory ownership.
-- **`.agentfold/context/commands.md`** — setup, development, lint, test, build, and validation commands.
-- **`.agentfold/context/conventions.md`** — coding rules, naming, testing, and contribution standards.
-- **`.agentfold/context/safety.md`** — sensitive paths, prohibited actions, generated files, and confirmation rules.
-- **`.agentfold/state/current.md`** — current task and latest checkpoint.
-- **`.agentfold/state/history/`** — immutable progress and final checkpoints.
-- **`.agentfold/state/completed/`** — completed-task archives; completed tasks cannot yet be reopened or deleted.
-- **`.agentfold/manifest.json`** — hashes, adapter versions, schema version, and synchronization metadata.
+- **`.briefonce/config.yaml`** — machine-readable settings, adapter selection, paths, and behavior.
+- **`.briefonce/context/project.md`** — project purpose, scope, users, and domain terms.
+- **`.briefonce/context/architecture.md`** — system boundaries, packages, data flow, and directory ownership.
+- **`.briefonce/context/commands.md`** — setup, development, lint, test, build, and validation commands.
+- **`.briefonce/context/conventions.md`** — coding rules, naming, testing, and contribution standards.
+- **`.briefonce/context/safety.md`** — sensitive paths, prohibited actions, generated files, and confirmation rules.
+- **`.briefonce/state/current.md`** — current task and latest checkpoint.
+- **`.briefonce/state/history/`** — immutable progress and final checkpoints.
+- **`.briefonce/state/completed/`** — completed-task archives; completed tasks cannot yet be reopened or deleted.
+- **`.briefonce/manifest.json`** — hashes, adapter versions, schema version, and synchronization metadata.
 
 ---
 
@@ -702,7 +708,7 @@ The schema may evolve before `1.0.0`, but migrations must be explicit and tested
 
 ## Active state format
 
-`.agentfold/state/current.md` should remain readable without BriefOnce.
+`.briefonce/state/current.md` should remain readable without BriefOnce.
 
 ```md
 ---
@@ -837,7 +843,7 @@ BriefOnce supports two generation strategies.
 Used when BriefOnce created the file and owns all content.
 
 ```md
-<!-- Generated by BriefOnce. Edit .agentfold/context instead. -->
+<!-- Generated by BriefOnce. Edit .briefonce/context instead. -->
 ```
 
 ### Managed-region ownership
@@ -861,7 +867,7 @@ Rules:
 1. Never modify content outside the managed region.
 2. Refuse malformed or duplicated region markers.
 3. Write through a temporary file and rename atomically.
-4. Store the generated hash in `.agentfold/manifest.json`.
+4. Store the generated hash in `.briefonce/manifest.json`.
 5. Show a diff before a destructive change.
 6. Require `--force` for replacing an unmanaged file.
 7. Offer a backup before takeover.
@@ -1006,7 +1012,7 @@ state:
   visibility: local
 ```
 
-`.agentfold/state/` is added to `.gitignore`.
+`.briefonce/state/` is added to `.gitignore`.
 
 Best for one developer on one machine and for avoiding personal task notes in the repository.
 
@@ -1374,9 +1380,9 @@ README files are primarily for people discovering and using a project. Agent ins
 
 ```text
 README.md                    -> product and human documentation
-.agentfold/context/*         -> canonical project knowledge
+.briefonce/context/*         -> canonical project knowledge
 Generated instruction files -> agent-specific operational context
-.agentfold/state/*           -> active task continuity
+.briefonce/state/*           -> active task continuity
 ```
 
 ---

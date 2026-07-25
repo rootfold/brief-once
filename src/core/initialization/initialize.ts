@@ -9,7 +9,7 @@ import type { AtomicInitializationWriter, InitializationFile } from "./atomic-wr
 import { createInitialConfig } from "./create-initial-config.js";
 import { inspectInstallation, type InstallationInspection } from "./inspect-installation.js";
 import { createManifest, serializeManifest } from "./manifest.js";
-import { agentFoldPath } from "./paths.js";
+import { briefOncePath } from "./paths.js";
 import { createContextTemplates } from "./templates.js";
 
 interface BaseInitializationPlan {
@@ -93,6 +93,25 @@ export async function prepareInitialization(
 
   const inspection = await inspectInstallation(fileSystem, repositoryRoot);
 
+  if (inspection.storageConflict) {
+    return {
+      status: "conflict",
+      exitCode: 5,
+      repositoryRoot,
+      inspection,
+      diagnostics: [
+        {
+          code: "AFI002",
+          severity: "error",
+          message:
+            "Both .briefonce and legacy .agentfold project directories exist. BriefOnce will not merge them automatically.",
+          suggestion:
+            "Review both directories and keep one canonical project store before retrying.",
+        },
+      ],
+    };
+  }
+
   if (inspection.configExists) {
     return {
       status: "already-initialized",
@@ -103,8 +122,10 @@ export async function prepareInitialization(
         {
           code: "AFI002",
           severity: "info",
-          message: `BriefOnce appears to be initialized. ${inspectionDetail(inspection)}`,
-          suggestion: "No files were changed. Run b1 doctor to validate the installation.",
+          message: `BriefOnce appears to be initialized${inspection.legacyStorage ? " in the legacy .agentfold directory" : ""}. ${inspectionDetail(inspection)}`,
+          suggestion: inspection.legacyStorage
+            ? "No files were changed. Run b1 migrate to preview the storage rebrand."
+            : "No files were changed. Run b1 doctor to validate the installation.",
         },
       ],
     };
@@ -191,7 +212,7 @@ export async function commitInitialization(
     {
       code: "AFI005",
       severity: "success",
-      message: `${agentFoldPath("config.yaml")} and canonical context files were created.`,
+      message: `${briefOncePath("config.yaml")} and canonical context files were created.`,
     },
   ];
 }

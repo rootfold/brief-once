@@ -1,4 +1,9 @@
-export const agentFoldDirectory = ".agentfold";
+import {
+  preferredProjectDirectory,
+  preferredProjectRelativePath,
+} from "../storage/project-storage.js";
+
+export const briefOnceDirectory = preferredProjectDirectory;
 
 export const initializationFilePaths = [
   "config.yaml",
@@ -15,8 +20,8 @@ export const managedPayloadPaths = initializationFilePaths.filter(
     file !== "manifest.json",
 );
 
-export function agentFoldPath(relativePath: string): string {
-  return `${agentFoldDirectory}/${relativePath}`;
+export function briefOncePath(relativePath: string): string {
+  return preferredProjectRelativePath(relativePath);
 }
 
 export function portablePath(input: string): string {

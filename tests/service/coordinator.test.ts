@@ -71,11 +71,11 @@ describe("AgentFold service coordinator", () => {
     expect((finished as { status: string }).status).toBe("task_finished");
     expect(coordinator.sessions.get(sessionId)?.activeTaskId).toBeUndefined();
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "current.md")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "current.md")),
     ).resolves.toBe(false);
     await expect(
       fixture.fileSystem.exists(
-        path.join(fixture.root, ".agentfold", "state", "completed", `${taskA}.md`),
+        path.join(fixture.root, ".briefonce", "state", "completed", `${taskA}.md`),
       ),
     ).resolves.toBe(true);
 
@@ -152,7 +152,7 @@ describe("AgentFold service coordinator", () => {
     expect(secondId).toBe("shared-2");
     expect((second as { status: string }).status).toBe("resumable");
     expect(coordinator.sessions.get(firstId)?.state).toBe("superseded");
-    const historyDirectory = path.join(fixture.root, ".agentfold", "state", "history");
+    const historyDirectory = path.join(fixture.root, ".briefonce", "state", "history");
     expect(await readdir(historyDirectory)).toHaveLength(1);
     expect(JSON.stringify(second)).not.toContain(fixture.root);
 

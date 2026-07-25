@@ -2,6 +2,7 @@ import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { PackageManager } from "../scanners/types.js";
 import type { AutomationPolicy } from "../config/automation-policy.js";
 import type { ReliabilityPolicy } from "../config/reliability-policy.js";
+import type { ProjectStorageDirectory } from "../storage/project-storage.js";
 
 export interface CanonicalPathGroups {
   readonly source: readonly string[];
@@ -21,6 +22,10 @@ export interface CanonicalContextDocuments {
 export interface CanonicalProjectContext {
   readonly schemaVersion: 1;
   readonly repositoryRoot: string;
+  readonly storage: {
+    readonly directory: ProjectStorageDirectory;
+    readonly legacy: boolean;
+  };
   readonly project: {
     readonly name: string;
     readonly summary: string;

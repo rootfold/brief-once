@@ -117,22 +117,22 @@ describe("AgentFold MCP tools", () => {
     expect(data(finished)).toMatchObject({
       taskId: taskA,
       finalCheckpointId: "CP-002",
-      archivePath: `.agentfold/state/completed/${taskA}.md`,
+      archivePath: `.briefonce/state/completed/${taskA}.md`,
       validationSummary: { total: 1, passed: 1, failed: 0 },
     });
     expect(harness.sessions.requireOpen(sessionId).status).toBe("open");
     expect(harness.sessions.get(sessionId)?.activeTaskId).toBeUndefined();
     await expect(
-      harness.fileSystem.exists(path.join(harness.root, ".agentfold", "state", "current.md")),
+      harness.fileSystem.exists(path.join(harness.root, ".briefonce", "state", "current.md")),
     ).resolves.toBe(false);
     await expect(
       harness.fileSystem.exists(
-        path.join(harness.root, ".agentfold", "state", "history", `${taskA}-CP-001.md`),
+        path.join(harness.root, ".briefonce", "state", "history", `${taskA}-CP-001.md`),
       ),
     ).resolves.toBe(true);
     await expect(
       harness.fileSystem.exists(
-        path.join(harness.root, ".agentfold", "state", "history", `${taskA}-CP-002.md`),
+        path.join(harness.root, ".briefonce", "state", "history", `${taskA}-CP-002.md`),
       ),
     ).resolves.toBe(true);
     const completedStatus = await harness.handlers.getStatus({});
@@ -194,7 +194,7 @@ describe("AgentFold MCP tools", () => {
     });
     expect(opened.status).toBe("no_active_task");
     const sessionId = String(data(opened).sessionId);
-    expect(await harness.fileSystem.exists(path.join(harness.root, ".agentfold", "state"))).toBe(
+    expect(await harness.fileSystem.exists(path.join(harness.root, ".briefonce", "state"))).toBe(
       false,
     );
 
@@ -244,7 +244,7 @@ describe("AgentFold MCP tools", () => {
     expect(dryRun.status).toBe("dry_run");
     expect(data(dryRun).created).toBe(false);
     expect(
-      await harness.fileSystem.exists(path.join(harness.root, ".agentfold", "state", "history")),
+      await harness.fileSystem.exists(path.join(harness.root, ".briefonce", "state", "history")),
     ).toBe(false);
 
     const checkpoint = await harness.handlers.createCheckpoint({ sessionId });
@@ -310,12 +310,12 @@ describe("AgentFold MCP tools", () => {
     const sourceSecret = "sk_not-a-real-value-but-must-not-be-read";
     await writeFile(path.join(harness.root, "src", "secret.ts"), sourceSecret, "utf8");
     await writeFile(
-      path.join(harness.root, ".agentfold", "context", "architecture.md"),
+      path.join(harness.root, ".briefonce", "context", "architecture.md"),
       "A".repeat(25_000),
       "utf8",
     );
     await writeFile(
-      path.join(harness.root, ".agentfold", "context", "conventions.md"),
+      path.join(harness.root, ".briefonce", "context", "conventions.md"),
       "C".repeat(5_000),
       "utf8",
     );
@@ -467,7 +467,7 @@ describe("AgentFold MCP tools", () => {
     const sessionId = String(data(opened).sessionId);
     await harness.handlers.beginTask({ sessionId, title: "No mutation task" });
     const before = await harness.fileSystem.readText(
-      path.join(harness.root, ".agentfold", "state", "current.md"),
+      path.join(harness.root, ".briefonce", "state", "current.md"),
     );
     const invalid = await harness.handlers.closeSession({
       sessionId,
@@ -475,7 +475,7 @@ describe("AgentFold MCP tools", () => {
     });
     expect(invalid.status).toBe("invalid_input");
     await expect(
-      harness.fileSystem.readText(path.join(harness.root, ".agentfold", "state", "current.md")),
+      harness.fileSystem.readText(path.join(harness.root, ".briefonce", "state", "current.md")),
     ).resolves.toBe(before);
     expect(harness.sessions.requireOpen(sessionId).status).toBe("open");
   });

@@ -3,10 +3,20 @@ import path from "node:path";
 import { isPathInside } from "../context/path-boundary.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { FileSystem } from "../filesystem/filesystem.js";
+import {
+  preferredProjectDirectory,
+  projectStorageAbsolutePath,
+  projectStorageRelativePath,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 import { CompletedTaskParseError, parseCompletedTask } from "./parse-completed-task.js";
 import type { CompletedTask } from "./types.js";
 
-export const completedTasksRelativePath = ".agentfold/state/completed";
+export const completedTasksRelativePath = ".briefonce/state/completed";
+
+export function completedTasksRelativePathFor(directory: ProjectStorageDirectory): string {
+  return projectStorageRelativePath(directory, "state/completed");
+}
 
 export type LatestCompletedTaskLoadResult =
   | { readonly status: "success"; readonly task: CompletedTask }
@@ -16,8 +26,10 @@ export type LatestCompletedTaskLoadResult =
 export async function loadLatestCompletedTask(
   fileSystem: FileSystem,
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory = preferredProjectDirectory,
 ): Promise<LatestCompletedTaskLoadResult> {
-  const directory = path.join(repositoryRoot, ...completedTasksRelativePath.split("/"));
+  const relativeDirectory = completedTasksRelativePathFor(storageDirectory);
+  const directory = projectStorageAbsolutePath(repositoryRoot, storageDirectory, "state/completed");
   try {
     const entryType = await fileSystem.entryType(directory);
     if (entryType === undefined) return { status: "missing" };
@@ -53,7 +65,7 @@ export async function loadLatestCompletedTask(
             error instanceof CompletedTaskParseError
               ? error.message
               : "Completed-task history could not be inspected safely.",
-          suggestion: "Review .agentfold/state/completed; BriefOnce did not modify it.",
+          suggestion: `Review ${relativeDirectory}; BriefOnce did not modify it.`,
         },
       ],
     };

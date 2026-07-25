@@ -48,9 +48,18 @@ export async function getStatus(
     return mcpFailure(operation, "invalid_context", canonical.diagnostics);
   }
 
-  const active = await loadActiveState(context.fileSystem, context.repositoryRoot);
+  const storageDirectory = canonical.context.storage.directory;
+  const active = await loadActiveState(
+    context.fileSystem,
+    context.repositoryRoot,
+    storageDirectory,
+  );
   if (active.status === "error") return mcpFailure(operation, "invalid_state", active.diagnostics);
-  const completed = await loadLatestCompletedTask(context.fileSystem, context.repositoryRoot);
+  const completed = await loadLatestCompletedTask(
+    context.fileSystem,
+    context.repositoryRoot,
+    storageDirectory,
+  );
   if (completed.status === "error") {
     return mcpFailure(operation, "invalid_completed_state", completed.diagnostics);
   }
@@ -59,7 +68,9 @@ export async function getStatus(
     try {
       localStateIgnored = await context.gitInspector.isPathIgnored(
         context.repositoryRoot,
-        ".agentfold/state/",
+        active.status === "success" || active.status === "missing"
+          ? active.stateDirectoryRelativePath
+          : `${storageDirectory}/state/`,
       );
     } catch {
       return mcpFailure(operation, "git_error", [
@@ -96,7 +107,7 @@ export async function getStatus(
       code: "AFMCP015",
       severity: "warning",
       message: "Local BriefOnce state is not ignored by Git.",
-      suggestion: "Add only .agentfold/state/ to .gitignore.",
+      suggestion: `Add only ${storageDirectory}/state/ to .gitignore.`,
     });
   }
   return mcpSuccess(

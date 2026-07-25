@@ -150,7 +150,7 @@ function options(
 describe("reliability CLI", () => {
   it("renders concise human output and leaves repository state byte-for-byte unchanged", async () => {
     const fixture = await fixtureWithEvents();
-    const currentPath = path.join(fixture.root, ".agentfold", "config.yaml");
+    const currentPath = path.join(fixture.root, ".briefonce", "config.yaml");
     const before = await readFile(currentPath, "utf8");
     const output = captureOutput();
     expect(await runCli(["node", "agentfold", "reliability"], options(fixture, output))).toBe(0);

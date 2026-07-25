@@ -1,5 +1,3 @@
-import path from "node:path";
-
 import { loadCanonicalContext } from "../context/load-context.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { AtomicTextFileWriter } from "../filesystem/atomic-text-file-writer.js";
@@ -7,7 +5,7 @@ import type { FileSystem } from "../filesystem/filesystem.js";
 import type { GitInspector } from "../git/git-inspector.js";
 import type { GitRepositoryLocator } from "../git/git-repository-locator.js";
 import { canonicalContextFailureExitCode } from "../state/context-requirement.js";
-import { activeStateRelativePath, loadActiveState } from "../state/load-active-state.js";
+import { loadActiveState } from "../state/load-active-state.js";
 import { serializeActiveState } from "../state/serialize-active-state.js";
 import { agentNameSchema } from "../state/value-schemas.js";
 import { AgentReportValidationError, parseAgentReport } from "./parse-agent-report.js";
@@ -102,7 +100,11 @@ export async function prepareAgentReport(
   }
 
   const repositoryRoot = contextResult.repositoryRoot;
-  const loadedState = await loadActiveState(dependencies.fileSystem, repositoryRoot);
+  const loadedState = await loadActiveState(
+    dependencies.fileSystem,
+    repositoryRoot,
+    contextResult.context.storage.directory,
+  );
   if (loadedState.status === "missing") {
     return terminal(
       "missing-state",
@@ -219,7 +221,7 @@ export async function prepareAgentReport(
       status: "ready",
       exitCode: 0,
       repositoryRoot,
-      statePath: path.join(repositoryRoot, ".agentfold", "state", "current.md"),
+      statePath: loadedState.statePath,
       taskId: loadedState.state.taskId,
       report: redaction.value,
       summary: merged.summary,
@@ -261,7 +263,7 @@ export async function commitAgentReport(
     {
       code: "AFR009",
       severity: "success",
-      message: `Updated ${activeStateRelativePath}`,
+      message: `Updated ${plan.statePath.slice(plan.repositoryRoot.length + 1).replaceAll("\\", "/")}`,
     },
   ];
 }

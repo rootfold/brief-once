@@ -142,7 +142,7 @@ describe("prepareTaskStart", () => {
     expect(localPlan.diagnostics).toContainEqual(
       expect.objectContaining({ code: "AFS005", severity: "warning" }),
     );
-    expect(localInspector.ignoreReads[0]?.path).toBe(".agentfold/state/");
+    expect(localInspector.ignoreReads[0]?.path).toBe(".briefonce/state/");
 
     const tracked = await createContinuityFixture(temporaryDirectories, {
       visibility: "tracked",
@@ -181,7 +181,7 @@ describe("prepareTaskStart", () => {
     expect(uninitialized.status).toBe("invalid-context");
 
     const invalid = await createContinuityFixture(temporaryDirectories);
-    await writeFile(path.join(invalid.root, ".agentfold", "config.yaml"), "version: [\n", "utf8");
+    await writeFile(path.join(invalid.root, ".briefonce", "config.yaml"), "version: [\n", "utf8");
     const invalidPlan = await prepareTaskStart(dependencies(invalid), { title: "Task" });
     expect(invalidPlan.status).toBe("invalid-context");
     expect(invalidPlan.exitCode).toBe(2);

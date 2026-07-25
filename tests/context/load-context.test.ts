@@ -62,20 +62,20 @@ async function repositoryFixture(
   const root = await mkdtemp(path.join(os.tmpdir(), name));
   temporaryDirectories.push(root);
   await mkdir(path.join(root, ".git"));
-  await mkdir(path.join(root, ".agentfold", "context"), { recursive: true });
+  await mkdir(path.join(root, ".briefonce", "context"), { recursive: true });
   await Promise.all(
     ["src/features", "tests", "docs", "dist"].map((directory) =>
       mkdir(path.join(root, ...directory.split("/")), { recursive: true }),
     ),
   );
   await writeFile(
-    path.join(root, ".agentfold", "config.yaml"),
+    path.join(root, ".briefonce", "config.yaml"),
     serializeConfig(baseConfig()),
     "utf8",
   );
   await Promise.all(
     Object.entries(contextDocuments).map(([file, content]) =>
-      writeFile(path.join(root, ".agentfold", "context", file), content, "utf8"),
+      writeFile(path.join(root, ".briefonce", "context", file), content, "utf8"),
     ),
   );
 
@@ -140,7 +140,7 @@ describe("loadCanonicalContext", () => {
 
   it("reports a missing configuration without reading context", async () => {
     const fixture = await repositoryFixture();
-    await rm(path.join(fixture.root, ".agentfold", "config.yaml"));
+    await rm(path.join(fixture.root, ".briefonce", "config.yaml"));
 
     const result = await load(fixture.root, fixture.fileSystem);
 
@@ -162,7 +162,7 @@ describe("loadCanonicalContext", () => {
       adapters: {},
     });
     await writeFile(
-      path.join(fixture.root, ".agentfold", "config.yaml"),
+      path.join(fixture.root, ".briefonce", "config.yaml"),
       serializeConfig(config),
       "utf8",
     );
@@ -180,7 +180,7 @@ describe("loadCanonicalContext", () => {
   it("distinguishes invalid YAML from schema-invalid configuration", async () => {
     const invalidYaml = await repositoryFixture("agentfold-invalid-yaml-");
     await writeFile(
-      path.join(invalidYaml.root, ".agentfold", "config.yaml"),
+      path.join(invalidYaml.root, ".briefonce", "config.yaml"),
       "version: [\n",
       "utf8",
     );
@@ -191,7 +191,7 @@ describe("loadCanonicalContext", () => {
 
     const invalidSchema = await repositoryFixture("agentfold-invalid-schema-");
     await writeFile(
-      path.join(invalidSchema.root, ".agentfold", "config.yaml"),
+      path.join(invalidSchema.root, ".briefonce", "config.yaml"),
       serializeConfig(baseConfig()).replace("visibility: local", "visibility: shared"),
       "utf8",
     );
@@ -203,8 +203,8 @@ describe("loadCanonicalContext", () => {
 
   it("reports every missing canonical context file as an error", async () => {
     const fixture = await repositoryFixture();
-    await rm(path.join(fixture.root, ".agentfold", "context", "architecture.md"));
-    await rm(path.join(fixture.root, ".agentfold", "context", "safety.md"));
+    await rm(path.join(fixture.root, ".briefonce", "context", "architecture.md"));
+    await rm(path.join(fixture.root, ".briefonce", "context", "safety.md"));
 
     const result = await load(fixture.root, fixture.fileSystem);
 
@@ -215,12 +215,12 @@ describe("loadCanonicalContext", () => {
   it("warns for whitespace-only context and ignores unknown context files", async () => {
     const fixture = await repositoryFixture();
     await writeFile(
-      path.join(fixture.root, ".agentfold", "context", "commands.md"),
+      path.join(fixture.root, ".briefonce", "context", "commands.md"),
       " \r\n\t",
       "utf8",
     );
     await writeFile(
-      path.join(fixture.root, ".agentfold", "context", "notes.md"),
+      path.join(fixture.root, ".briefonce", "context", "notes.md"),
       "# Extra\n",
       "utf8",
     );
@@ -245,7 +245,7 @@ describe("loadCanonicalContext", () => {
       paths: { source: ["source files", "missing folder"] },
     });
     await writeFile(
-      path.join(fixture.root, ".agentfold", "config.yaml"),
+      path.join(fixture.root, ".briefonce", "config.yaml"),
       serializeConfig(config),
       "utf8",
     );
@@ -294,7 +294,7 @@ describe("loadCanonicalContext", () => {
         writeFile(path.join(outside, file), content, "utf8"),
       ),
     );
-    const contextDirectory = path.join(fixture.root, ".agentfold", "context");
+    const contextDirectory = path.join(fixture.root, ".briefonce", "context");
     await rm(contextDirectory, { recursive: true });
     await symlink(outside, contextDirectory, process.platform === "win32" ? "junction" : "dir");
 

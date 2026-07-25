@@ -90,12 +90,12 @@ describe("CommandGitInspector", () => {
     const runner = new RecordingProcessRunner([success()]);
     const inspector = new CommandGitInspector(runner);
 
-    await expect(inspector.isPathIgnored("repo", ".agentfold/state/")).resolves.toBe(true);
+    await expect(inspector.isPathIgnored("repo", ".briefonce/state/")).resolves.toBe(true);
     expect(runner.calls[0]?.arguments).toEqual([
       "check-ignore",
       "--quiet",
       "--",
-      ".agentfold/state/",
+      ".briefonce/state/",
     ]);
     const allArguments = runner.calls.flatMap((call) => call.arguments);
     for (const forbidden of ["commit", "branch", "add", "reset", "stash", "push", "remote"]) {
@@ -152,10 +152,28 @@ describe("CommandGitInspector", () => {
         "--untracked-files=all",
         "--",
         ".",
+        ":(exclude).briefonce/state/**",
         ":(exclude).agentfold/state/**",
       ],
-      ["diff", "--numstat", "-z", "--", ".", ":(exclude).agentfold/state/**"],
-      ["diff", "--cached", "--numstat", "-z", "--", ".", ":(exclude).agentfold/state/**"],
+      [
+        "diff",
+        "--numstat",
+        "-z",
+        "--",
+        ".",
+        ":(exclude).briefonce/state/**",
+        ":(exclude).agentfold/state/**",
+      ],
+      [
+        "diff",
+        "--cached",
+        "--numstat",
+        "-z",
+        "--",
+        ".",
+        ":(exclude).briefonce/state/**",
+        ":(exclude).agentfold/state/**",
+      ],
       ["merge-base", "--is-ancestor", start, current],
       ["log", "--max-count=51", "--format=%H%x00%s%x00", `${start}..${current}`],
     ]);

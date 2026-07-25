@@ -190,7 +190,7 @@ describe("persistent session journal behavior", () => {
     const fixture = await createContinuityFixture(temporaryDirectories, {
       name: "agentfold disabled reliability ",
     });
-    const configPath = path.join(fixture.root, ".agentfold", "config.yaml");
+    const configPath = path.join(fixture.root, ".briefonce", "config.yaml");
     const config = await loadConfig(fixture.fileSystem, configPath);
     await fixture.fileSystem.writeText(
       configPath,

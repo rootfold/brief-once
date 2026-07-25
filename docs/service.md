@@ -4,7 +4,7 @@
 
 ```text
 Codex MCP -----------+
-Antigravity MCP -----+--> authenticated local IPC --> BriefOnce core --> .agentfold/state
+Antigravity MCP -----+--> authenticated local IPC --> BriefOnce core --> .briefonce/state
 future IDE ----------+
 ```
 
@@ -122,7 +122,7 @@ The latest previously valid immutable checkpoint remains the only resume source.
 
 ## Finished tasks
 
-`agentfold_finish_task` runs through the same per-repository operation queue as reports and checkpoints. It creates a lifecycle-distinct final checkpoint and `.agentfold/state/completed/<task-id>.md`, then removes active state. The service clears the session's active task but keeps the session open, allowing the next substantive request to begin a fresh task. `agentfold_close_session` then closes without inventing another report or checkpoint. Incomplete, blocked, paused, or handed-off work should use the existing close-and-checkpoint path instead.
+`agentfold_finish_task` runs through the same per-repository operation queue as reports and checkpoints. It creates a lifecycle-distinct final checkpoint and `.briefonce/state/completed/<task-id>.md`, then removes active state. The service clears the session's active task but keeps the session open, allowing the next substantive request to begin a fresh task. `agentfold_close_session` then closes without inventing another report or checkpoint. Incomplete, blocked, paused, or handed-off work should use the existing close-and-checkpoint path instead.
 
 Set `automation.enabled: false` to retain shared sessions and explicit lifecycle tools while disabling switch and timeout checkpoints. Explicit user-requested checkpoints ignore the automatic minimum interval.
 
@@ -154,7 +154,7 @@ This milestone does not modify any host application's configuration.
 - If required MCP reports incompatibility, stop the old service and start it with the current BriefOnce package.
 - If startup times out, run `b1 service run --debug` and inspect stderr.
 - Confirm `AGENTFOLD_RUNTIME_DIR` is not a symlink and is writable by the current user.
-- Confirm `.agentfold/config.yaml` and all five canonical context files are valid; session operations still use canonical validation.
+- Confirm `.briefonce/config.yaml` and all five canonical context files are valid; session operations still use canonical validation.
 
 Current limitations: the service is not installed as an operating-system
 service or login item, embedded MCP sessions cannot be recovered after their

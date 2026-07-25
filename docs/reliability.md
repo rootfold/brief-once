@@ -15,7 +15,7 @@ b1 reliability --json
 ```
 
 The command does not start the service, create a checkpoint, rewrite
-`.agentfold`, or mutate Git. It works while the service is stopped by reading
+`.briefonce`, or mutate Git. It works while the service is stopped by reading
 persisted private history. `--include-events` adds only safe event summaries;
 the default output does not dump event history.
 

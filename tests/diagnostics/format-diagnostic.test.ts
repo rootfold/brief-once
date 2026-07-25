@@ -5,7 +5,7 @@ import { formatDiagnostic } from "../../src/core/diagnostics/format-diagnostic.j
 const warning = {
   code: "AFD004",
   severity: "warning" as const,
-  message: ".agentfold/config.yaml was not found.",
+  message: ".briefonce/config.yaml was not found.",
   suggestion: "This is expected before AgentFold initialization.",
 };
 

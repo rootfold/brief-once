@@ -48,14 +48,23 @@ export async function openSession(
           sessionId: session.sessionId,
         });
   }
-  const active = await loadActiveState(context.fileSystem, context.repositoryRoot);
+  const storageDirectory = canonical.context.storage.directory;
+  const active = await loadActiveState(
+    context.fileSystem,
+    context.repositoryRoot,
+    storageDirectory,
+  );
   if (active.status === "error") {
     return mcpFailure(operation, "invalid_state", [opened, ...active.diagnostics], {
       sessionId: session.sessionId,
     });
   }
   if (active.status === "missing") {
-    const completed = await loadLatestCompletedTask(context.fileSystem, context.repositoryRoot);
+    const completed = await loadLatestCompletedTask(
+      context.fileSystem,
+      context.repositoryRoot,
+      storageDirectory,
+    );
     if (completed.status === "error") {
       return mcpFailure(operation, "invalid_completed_state", [opened, ...completed.diagnostics], {
         sessionId: session.sessionId,

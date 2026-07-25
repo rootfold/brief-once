@@ -181,7 +181,12 @@ export async function loadReliabilityReport(
   }
   events = events.slice(-Math.max(1, input.limit ?? 100));
 
-  const active = await loadActiveState(input.fileSystem, canonical.repositoryRoot);
+  const storageDirectory = canonical.context.storage.directory;
+  const active = await loadActiveState(
+    input.fileSystem,
+    canonical.repositoryRoot,
+    storageDirectory,
+  );
   if (active.status === "error") {
     return { status: "error", exitCode: 2, diagnostics: active.diagnostics };
   }
@@ -190,7 +195,11 @@ export async function loadReliabilityReport(
     (input.taskId === undefined || active.state.taskId === input.taskId)
       ? { taskId: active.state.taskId, title: active.state.title }
       : undefined;
-  const completed = await loadLatestCompletedTask(input.fileSystem, canonical.repositoryRoot);
+  const completed = await loadLatestCompletedTask(
+    input.fileSystem,
+    canonical.repositoryRoot,
+    storageDirectory,
+  );
   if (completed.status === "error") {
     return { status: "error", exitCode: 2, diagnostics: completed.diagnostics };
   }

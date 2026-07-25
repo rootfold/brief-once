@@ -154,5 +154,5 @@ export async function createResumeCheckpoint(
 }
 
 export function checkpointPath(root: string, taskId: string, checkpointId: string): string {
-  return path.join(root, ".agentfold", "state", "history", `${taskId}-${checkpointId}.md`);
+  return path.join(root, ".briefonce", "state", "history", `${taskId}-${checkpointId}.md`);
 }

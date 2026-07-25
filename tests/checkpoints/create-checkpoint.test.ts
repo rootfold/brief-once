@@ -217,7 +217,7 @@ describe("checkpoint creation", () => {
       fixture.fileSystem.exists(
         path.join(
           fixture.root,
-          ".agentfold",
+          ".briefonce",
           "state",
           "history",
           `${first.checkpoint.taskId}-CP-002.md`,
@@ -326,7 +326,7 @@ describe("checkpoint creation", () => {
     expect(missingResult).toMatchObject({ status: "missing-state", exitCode: 5 });
 
     const invalid = await activeFixture();
-    const statePath = path.join(invalid.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(invalid.root, ".briefonce", "state", "current.md");
     await invalid.fileSystem.writeText(statePath, "not active state\n");
     await expect(prepareCheckpoint(dependencies(invalid))).resolves.toMatchObject({
       status: "invalid-state",
@@ -334,7 +334,7 @@ describe("checkpoint creation", () => {
     });
 
     const unsafe = await activeFixture();
-    const unsafePath = path.join(unsafe.root, ".agentfold", "state", "current.md");
+    const unsafePath = path.join(unsafe.root, ".briefonce", "state", "current.md");
     const secret = "fake-secret-value-123";
     await unsafe.fileSystem.writeText(
       unsafePath,
@@ -385,7 +385,7 @@ describe("checkpoint creation", () => {
     });
 
     const exhausted = await activeFixture();
-    const statePath = path.join(exhausted.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(exhausted.root, ".briefonce", "state", "current.md");
     await exhausted.fileSystem.writeText(
       statePath,
       (await exhausted.fileSystem.readText(statePath)).replace("count: 0", "count: 999"),

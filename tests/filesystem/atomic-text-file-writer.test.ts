@@ -29,7 +29,7 @@ async function fixture(): Promise<{ readonly root: string; readonly fileSystem: 
 describe("AtomicTextFileWriter", () => {
   it("atomically creates a flushed state file and refuses replacement in create mode", async () => {
     const testFixture = await fixture();
-    const destination = path.join(testFixture.root, ".agentfold", "state", "current.md");
+    const destination = path.join(testFixture.root, ".briefonce", "state", "current.md");
     const writer = new AtomicTextFileWriter(testFixture.fileSystem, () => ".current.tmp");
 
     await writer.write(destination, "first\n", "create");
@@ -48,7 +48,7 @@ describe("AtomicTextFileWriter", () => {
       }
     }
     const fileSystem = new FailingFileSystem(() => testFixture.root);
-    const destination = path.join(testFixture.root, ".agentfold", "state", "current.md");
+    const destination = path.join(testFixture.root, ".briefonce", "state", "current.md");
     const temporary = path.join(path.dirname(destination), ".current.tmp");
 
     await expect(

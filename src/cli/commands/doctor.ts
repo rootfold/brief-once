@@ -146,13 +146,13 @@ export async function runDoctor(dependencies: DoctorDependencies): Promise<Docto
         diagnostics.push({
           code: "AFD004",
           severity: "warning",
-          message: ".agentfold/config.yaml was not found.",
+          message: ".briefonce/config.yaml was not found.",
           suggestion: "This is expected before BriefOnce initialization.",
         });
       }
     } else {
       invalidConfiguration = contextResult.diagnostics.some((diagnostic) =>
-        ["AFC003", "AFC004", "AFC007", "AFC010"].includes(diagnostic.code),
+        ["AFC003", "AFC004", "AFC007", "AFC010", "AFC011"].includes(diagnostic.code),
       );
       diagnostics.push({
         code: "AFD004",

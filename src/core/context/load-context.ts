@@ -6,6 +6,12 @@ import type { AgentFoldConfig } from "../config/types.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { FileSystem } from "../filesystem/filesystem.js";
 import type { GitRepositoryLocator } from "../git/git-repository-locator.js";
+import {
+  projectStorageAbsolutePath,
+  projectStorageRelativePath,
+  resolveProjectStorage,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 import { canonicalContextFileEntries, type CanonicalContextFileName } from "./context-files.js";
 import { isPathInside, resolvePortableRepositoryPath } from "./path-boundary.js";
 import { resolveCanonicalContext } from "./resolve-context.js";
@@ -60,7 +66,10 @@ async function safeExistingRealPath(
   return isPathInside(boundary.realRoot, realCandidate) ? realCandidate : undefined;
 }
 
-function configValidationDiagnostics(error: ConfigValidationError): readonly Diagnostic[] {
+function configValidationDiagnostics(
+  error: ConfigValidationError,
+  storageDirectory: ProjectStorageDirectory,
+): readonly Diagnostic[] {
   return error.issues.map((issue) => {
     const unsafePath = issue.path === "paths" || issue.path.startsWith("paths.");
 
@@ -70,7 +79,7 @@ function configValidationDiagnostics(error: ConfigValidationError): readonly Dia
       message: `${issue.path}: ${issue.message}`,
       suggestion: unsafePath
         ? "Use normalized repository-relative paths without absolute prefixes or parent traversal."
-        : "Correct .agentfold/config.yaml and run the command again.",
+        : `Correct ${projectStorageRelativePath(storageDirectory, "config.yaml")} and run the command again.`,
     };
   });
 }
@@ -78,17 +87,23 @@ function configValidationDiagnostics(error: ConfigValidationError): readonly Dia
 async function loadValidatedConfig(
   fileSystem: FileSystem,
   boundary: RepositoryBoundary,
+  storageDirectory: ProjectStorageDirectory,
   diagnostics: Diagnostic[],
 ): Promise<AgentFoldConfig | undefined> {
-  const configPath = path.join(boundary.lexicalRoot, ".agentfold", "config.yaml");
+  const relativeConfigPath = projectStorageRelativePath(storageDirectory, "config.yaml");
+  const configPath = projectStorageAbsolutePath(
+    boundary.lexicalRoot,
+    storageDirectory,
+    "config.yaml",
+  );
 
   try {
     if (!(await fileSystem.exists(configPath))) {
       diagnostics.push({
         code: "AFC002",
         severity: "error",
-        message: ".agentfold/config.yaml was not found.",
-        suggestion: "Run agentfold init from inside the repository.",
+        message: `${relativeConfigPath} was not found.`,
+        suggestion: "Run b1 init from inside the repository.",
       });
       return undefined;
     }
@@ -98,7 +113,7 @@ async function loadValidatedConfig(
       diagnostics.push({
         code: "AFC010",
         severity: "error",
-        message: ".agentfold/config.yaml resolves outside the Git repository.",
+        message: `${relativeConfigPath} resolves outside the Git repository.`,
         suggestion: "Replace the escaping symbolic link with a file inside the repository.",
       });
       return undefined;
@@ -111,20 +126,20 @@ async function loadValidatedConfig(
         code: "AFC003",
         severity: "error",
         message: error.message,
-        suggestion: "Correct the YAML syntax in .agentfold/config.yaml.",
+        suggestion: `Correct the YAML syntax in ${relativeConfigPath}.`,
       });
       return undefined;
     }
 
     if (error instanceof ConfigValidationError) {
-      diagnostics.push(...configValidationDiagnostics(error));
+      diagnostics.push(...configValidationDiagnostics(error, storageDirectory));
       return undefined;
     }
 
     diagnostics.push({
       code: "AFC009",
       severity: "error",
-      message: `Could not load .agentfold/config.yaml: ${errorMessage(error)}`,
+      message: `Could not load ${relativeConfigPath}: ${errorMessage(error)}`,
       suggestion: "Check the file type and repository permissions, then retry.",
     });
     return undefined;
@@ -134,11 +149,12 @@ async function loadValidatedConfig(
 async function loadContextDocuments(
   fileSystem: FileSystem,
   boundary: RepositoryBoundary,
+  storageDirectory: ProjectStorageDirectory,
   diagnostics: Diagnostic[],
 ): Promise<Partial<CanonicalContextDocuments>> {
   const documents: Partial<Record<CanonicalContextFileName, string>> = {};
 
-  for (const [name, relativePath] of canonicalContextFileEntries) {
+  for (const [name, relativePath] of canonicalContextFileEntries(storageDirectory)) {
     const contextPath = resolvePortableRepositoryPath(boundary.lexicalRoot, relativePath);
 
     try {
@@ -147,7 +163,7 @@ async function loadContextDocuments(
           code: "AFC005",
           severity: "error",
           message: `Required canonical context file is missing: ${relativePath}`,
-          suggestion: "Restore the file inside .agentfold/context; loading never recreates it.",
+          suggestion: `Restore the file inside ${projectStorageRelativePath(storageDirectory, "context")}; loading never recreates it.`,
         });
         continue;
       }
@@ -190,6 +206,7 @@ async function loadContextDocuments(
 async function inspectConfiguredPaths(
   fileSystem: FileSystem,
   boundary: RepositoryBoundary,
+  storageDirectory: ProjectStorageDirectory,
   config: AgentFoldConfig,
   diagnostics: Diagnostic[],
 ): Promise<void> {
@@ -213,7 +230,7 @@ async function inspectConfiguredPaths(
             code: "AFC008",
             severity: "warning",
             message: `Configured ${group} path does not exist: ${configuredPath}`,
-            suggestion: "Create the path or remove it from .agentfold/config.yaml.",
+            suggestion: `Create the path or remove it from ${projectStorageRelativePath(storageDirectory, "config.yaml")}.`,
           });
           continue;
         }
@@ -241,7 +258,7 @@ async function inspectConfiguredPaths(
 function completeDocuments(
   documents: Partial<CanonicalContextDocuments>,
 ): documents is CanonicalContextDocuments {
-  return canonicalContextFileEntries.every(([name]) => documents[name] !== undefined);
+  return canonicalContextFileEntries().every(([name]) => documents[name] !== undefined);
 }
 
 export async function loadCanonicalContext(
@@ -303,20 +320,68 @@ export async function loadCanonicalContext(
   }
 
   const boundary = { lexicalRoot, realRoot };
-  const config = await loadValidatedConfig(fileSystem, boundary, diagnostics);
+  let storageDirectory: ProjectStorageDirectory;
+  try {
+    const storage = await resolveProjectStorage(fileSystem, lexicalRoot);
+    if (storage.status === "conflict") {
+      diagnostics.push({
+        code: "AFC011",
+        severity: "error",
+        message:
+          "Both .briefonce and legacy .agentfold project directories exist; canonical context is ambiguous.",
+        suggestion:
+          "Review both directories and retain one project store. BriefOnce never merges them automatically.",
+      });
+      return failure(diagnostics, lexicalRoot);
+    }
+    if (storage.status === "absent") {
+      diagnostics.push({
+        code: "AFC002",
+        severity: "error",
+        message: ".briefonce/config.yaml was not found.",
+        suggestion: "Run b1 init from inside the repository.",
+      });
+      return failure(diagnostics, lexicalRoot);
+    }
+    storageDirectory = storage.selected.directory;
+    if (storage.legacy) {
+      diagnostics.push({
+        code: "AFC012",
+        severity: "warning",
+        message: "Canonical context was loaded from the legacy .agentfold project directory.",
+        suggestion: "Run b1 migrate to preview a safe rename to .briefonce.",
+      });
+    }
+  } catch (error: unknown) {
+    diagnostics.push({
+      code: "AFC009",
+      severity: "error",
+      message: `Could not inspect BriefOnce project storage: ${errorMessage(error)}`,
+      suggestion: "Check repository permissions and retry.",
+    });
+    return failure(diagnostics, lexicalRoot);
+  }
+
+  const config = await loadValidatedConfig(fileSystem, boundary, storageDirectory, diagnostics);
 
   if (config === undefined) {
     return failure(diagnostics, lexicalRoot);
   }
 
-  const documents = await loadContextDocuments(fileSystem, boundary, diagnostics);
-  await inspectConfiguredPaths(fileSystem, boundary, config, diagnostics);
+  const documents = await loadContextDocuments(fileSystem, boundary, storageDirectory, diagnostics);
+  await inspectConfiguredPaths(fileSystem, boundary, storageDirectory, config, diagnostics);
 
   if (hasErrors(diagnostics) || !completeDocuments(documents)) {
     return failure(diagnostics, lexicalRoot);
   }
 
-  const context = resolveCanonicalContext(lexicalRoot, config, documents, diagnostics);
+  const context = resolveCanonicalContext(
+    lexicalRoot,
+    storageDirectory,
+    config,
+    documents,
+    diagnostics,
+  );
 
   return {
     status: "success",

@@ -19,7 +19,7 @@ pnpm b1 init --yes
 This creates:
 
 ```text
-.agentfold/
+.briefonce/
 ├── config.yaml
 ├── context/
 │   ├── project.md
@@ -30,7 +30,7 @@ This creates:
 └── manifest.json
 ```
 
-Initialization never overwrites an existing canonical file. If `.agentfold/config.yaml` already exists, the command reports the installation and exits without writing. A partial `.agentfold` directory is reported as a conflict for manual review. Existing `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Copilot instructions, and Cursor rules are detected but left untouched.
+Initialization never overwrites an existing canonical file. If `.briefonce/config.yaml` already exists, the command reports the installation and exits without writing. A complete legacy `.agentfold` installation remains usable and is reported with a migration suggestion. A partial installation, or a repository containing both `.briefonce` and `.agentfold`, is a conflict for manual review. Existing `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, Copilot instructions, and Cursor rules are detected but left untouched.
 
 Initialization records only known top-level directories that actually exist. A detected configuration can include:
 
@@ -87,9 +87,31 @@ pnpm b1 doctor
 
 The current doctor checks Git repository presence and `README.md`, then resolves the canonical project context through the same loader future adapters will use. It reports invalid YAML or schema values, missing or empty context files, unsafe paths, and configured paths that do not exist. It does not modify files.
 
-Canonical BriefOnce files under the retained `.agentfold` compatibility
-namespace are intended to be tracked. Initialization does not edit `.gitignore`;
-future local task state can be ignored separately.
+Canonical BriefOnce files under `.briefonce` are intended to be tracked.
+Initialization does not edit `.gitignore`; local task state can be ignored
+separately.
+
+## Migrate a legacy AgentFold project
+
+Legacy `.agentfold` repositories remain readable and writable so upgrading the
+package never strands active work. Migration is explicit:
+
+```bash
+b1 migrate
+b1 migrate --dry-run
+b1 migrate --yes
+```
+
+The first two commands are previews and write nothing. `--yes` validates the
+legacy canonical context and manifest, rejects symbolic-link or dual-directory
+conflicts, renames `.agentfold` to `.briefonce` on the same filesystem, and
+normalizes manifest paths. It preserves context, active state, checkpoints, and
+completed-task archives. It never merges two directories or edits unrelated
+agent instruction files.
+
+If local task state was ignored as `.agentfold/state/`, update that ignore rule
+to `.briefonce/state/` after migration. BriefOnce does not edit `.gitignore`
+automatically.
 
 ## Start an active task
 
@@ -105,12 +127,12 @@ Create the active task non-interactively:
 pnpm b1 start "Implement GitHub OAuth" --agent codex --yes
 ```
 
-This atomically creates `.agentfold/state/current.md`. It records a repository-relative working context, the current branch and HEAD commit, and an explicit `null` commit when the repository has no commits. It never creates a branch, stages files, or commits changes. An existing active task is never replaced.
+This atomically creates `.briefonce/state/current.md`. It records a repository-relative working context, the current branch and HEAD commit, and an explicit `null` commit when the repository has no commits. It never creates a branch, stages files, or commits changes. An existing active task is never replaced.
 
-When `state.visibility` is `local`, BriefOnce warns if `.agentfold/state/` is not ignored. Add only this path when local task state should remain untracked:
+When `state.visibility` is `local`, BriefOnce warns if `.briefonce/state/` is not ignored. Add only this path when local task state should remain untracked:
 
 ```gitignore
-.agentfold/state/
+.briefonce/state/
 ```
 
 BriefOnce does not edit `.gitignore` automatically.
@@ -171,7 +193,7 @@ pnpm b1 checkpoint --agent codex
 
 Git branch, HEAD, staged and unstaged status, repository-relative changed paths, aggregate numstat totals, and recent commit subjects are collected automatically. A path changed in both the index and working tree is counted once as a file, while its two Git numstat layers are summed; these are aggregate layer totals rather than a stored combined diff. Binary paths are counted without line totals. Semantic conclusions come only from earlier `report --stdin` submissions. A Git-only checkpoint is allowed with a warning; BriefOnce does not infer decisions, blockers, failures, or next actions from a diff.
 
-History is stored under `.agentfold/state/history/` as deterministic Markdown with YAML front matter. Observed Git facts and agent-reported conclusions remain visibly separate. Checkpoints contain no full diff, source-file content, environment values, terminal transcript, or private reasoning. Untracked files are named but their contents and line counts are not inspected.
+History is stored under `.briefonce/state/history/` as deterministic Markdown with YAML front matter. Observed Git facts and agent-reported conclusions remain visibly separate. Checkpoints contain no full diff, source-file content, environment values, terminal transcript, or private reasoning. Untracked files are named but their contents and line counts are not inspected.
 
 Checkpointing never stages or commits files. Running it again without a meaningful Git or semantic change leaves both history and active state byte-for-byte unchanged.
 
@@ -211,7 +233,7 @@ Get-Content .\completion.json -Raw | pnpm b1 finish --stdin --yes
 
 Resolution text must exactly match the normalized active entry. Omitting an entry does not silently resolve it, and any remaining in-progress work or blocker prevents completion. Reported validation is stored honestly and never executed.
 
-A successful finish creates one immutable `kind: final` checkpoint under `.agentfold/state/history/`, archives a human-readable record at `.agentfold/state/completed/<task-id>.md`, and only then removes `.agentfold/state/current.md`. Existing history remains intact. Run `start` for the next substantive task; completed tasks cannot currently be reopened or deleted.
+A successful finish creates one immutable `kind: final` checkpoint under `.briefonce/state/history/`, archives a human-readable record at `.briefonce/state/completed/<task-id>.md`, and only then removes `.briefonce/state/current.md`. Existing history remains intact. Run `start` for the next substantive task; completed tasks cannot currently be reopened or deleted.
 
 ## Resume from a checkpoint
 

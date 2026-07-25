@@ -7,8 +7,13 @@ import { isPathInside } from "../context/path-boundary.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { FileSystem } from "../filesystem/filesystem.js";
 import type { ActiveTask } from "../state/types.js";
+import {
+  preferredProjectDirectory,
+  projectStorageAbsolutePath,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 
-export const resumeHistoryRelativePath = ".agentfold/state/history";
+export const resumeHistoryRelativePath = ".briefonce/state/history";
 
 export interface ResolvedResumeCheckpoint {
   readonly status: "success";
@@ -49,8 +54,9 @@ function failure(
 async function loadHistoryDirectory(
   fileSystem: FileSystem,
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory,
 ): Promise<HistoryDirectory | undefined> {
-  const lexicalPath = path.join(repositoryRoot, ...resumeHistoryRelativePath.split("/"));
+  const lexicalPath = projectStorageAbsolutePath(repositoryRoot, storageDirectory, "state/history");
   const entryType = await fileSystem.entryType(lexicalPath);
   if (entryType === undefined) return undefined;
   if (entryType !== "directory") throw new Error("Checkpoint history is not a directory");
@@ -117,9 +123,10 @@ export async function resolveResumeCheckpoint(
   repositoryRoot: string,
   activeTask: ActiveTask,
   requested?: string,
+  storageDirectory: ProjectStorageDirectory = preferredProjectDirectory,
 ): Promise<ResolveResumeCheckpointResult> {
   try {
-    const history = await loadHistoryDirectory(fileSystem, repositoryRoot);
+    const history = await loadHistoryDirectory(fileSystem, repositoryRoot, storageDirectory);
     if (history === undefined) {
       return failure(
         6,

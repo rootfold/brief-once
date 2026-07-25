@@ -37,7 +37,7 @@ async function configFixture(content: string): Promise<{
 }> {
   const root = await mkdtemp(path.join(os.tmpdir(), "agentfold-yaml-"));
   temporaryDirectories.push(root);
-  const directory = path.join(root, ".agentfold");
+  const directory = path.join(root, ".briefonce");
   const configPath = path.join(directory, "config.yaml");
   await mkdir(directory);
   await writeFile(configPath, content, "utf8");

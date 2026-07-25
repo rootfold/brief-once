@@ -48,7 +48,7 @@ describe("resume checkpoint resolution", () => {
       name: "agentfold resume spaces ",
     });
     await fixture.fileSystem.writeText(path.join(fixture.root, "source-secret.txt"), "source only");
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const historyPath = checkpointPath(
       fixture.root,
       fixture.checkpoint.taskId,
@@ -82,7 +82,7 @@ describe("resume checkpoint resolution", () => {
 
   it("uses the metadata checkpoint even when a lexically higher unrelated filename exists", async () => {
     const fixture = await createResumeFixture(temporaryDirectories);
-    const history = path.join(fixture.root, ".agentfold", "state", "history");
+    const history = path.join(fixture.root, ".briefonce", "state", "history");
     await fixture.fileSystem.writeText(
       path.join(history, "AF-20260720-999-CP-999.md"),
       "unrelated",
@@ -102,7 +102,7 @@ describe("resume checkpoint resolution", () => {
     });
     await createResumeCheckpoint(fixture, "2026-07-20T20:00:00.000Z", resumeGitFacts());
     const state = await loadedState(fixture);
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     await fixture.fileSystem.writeText(
       statePath,
       serializeActiveState({
@@ -114,7 +114,7 @@ describe("resume checkpoint resolution", () => {
         },
       }),
     );
-    const history = path.join(fixture.root, ".agentfold", "state", "history");
+    const history = path.join(fixture.root, ".briefonce", "state", "history");
     await fixture.fileSystem.writeText(path.join(history, `${state.taskId}-CP-bad.md`), "ignored");
     await fixture.fileSystem.writeText(path.join(history, "AF-20260720-999-CP-999.md"), "ignored");
 
@@ -249,7 +249,7 @@ describe("resume checkpoint resolution", () => {
     const metadata = await createResumeFixture(temporaryDirectories);
     const metadataState = await loadedState(metadata);
     await metadata.fileSystem.writeText(
-      path.join(metadata.root, ".agentfold", "state", "current.md"),
+      path.join(metadata.root, ".briefonce", "state", "current.md"),
       serializeActiveState({
         ...metadataState,
         checkpointHistory: {
@@ -380,7 +380,7 @@ describe("resume checkpoint resolution", () => {
     expect(result.status).toBe("ready");
     expect(recording.reads).not.toContain(path.resolve(sourcePath));
     expect(
-      recording.reads.every((candidate) => candidate.includes(`${path.sep}.agentfold${path.sep}`)),
+      recording.reads.every((candidate) => candidate.includes(`${path.sep}.briefonce${path.sep}`)),
     ).toBe(true);
 
     class FailingCheckpointFileSystem extends NodeFileSystem {

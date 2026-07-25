@@ -90,7 +90,7 @@ export function assembleResumePacket(input: AssembleResumePacketInput): Assemble
       code: "AFR012",
       severity: "warning",
       message: "A non-portable safety exclusion was omitted from the resume packet.",
-      suggestion: "Use repository-relative excluded paths in .agentfold/config.yaml.",
+      suggestion: `Use repository-relative excluded paths in ${canonicalContext.storage.directory}/config.yaml.`,
     });
     return [];
   });

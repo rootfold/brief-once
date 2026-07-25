@@ -51,7 +51,7 @@ describe("continuity CLI", () => {
     expect(captured.stdout()).toContain("AF-20260720-001");
     expect(captured.stdout()).toContain("No state was written");
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "current.md")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "current.md")),
     ).resolves.toBe(false);
   });
 
@@ -156,7 +156,7 @@ describe("continuity CLI", () => {
       output: startOutput.output,
       now,
     });
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const stateBefore = await fixture.fileSystem.readText(statePath);
     const dryOutput = captureOutput();
     const dryExit = await runCli(["node", "agentfold", "checkpoint", "--dry-run"], {
@@ -184,7 +184,7 @@ describe("continuity CLI", () => {
     );
     expect(checkpointExit).toBe(0);
     expect(checkpointOutput.stdout()).toContain("Checkpoint: CP-001");
-    expect(checkpointOutput.stdout()).toContain("Created .agentfold/state/history/");
+    expect(checkpointOutput.stdout()).toContain("Created .briefonce/state/history/");
 
     const duplicateOutput = captureOutput();
     const duplicateExit = await runCli(["node", "agentfold", "checkpoint"], {
@@ -194,7 +194,7 @@ describe("continuity CLI", () => {
     expect(duplicateExit).toBe(0);
     expect(duplicateOutput.stdout()).toContain("No meaningful Git or semantic state changed");
     await expect(
-      fixture.fileSystem.listDirectory(path.join(fixture.root, ".agentfold", "state", "history")),
+      fixture.fileSystem.listDirectory(path.join(fixture.root, ".briefonce", "state", "history")),
     ).resolves.toHaveLength(1);
   });
 });

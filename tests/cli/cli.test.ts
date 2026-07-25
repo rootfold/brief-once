@@ -33,6 +33,7 @@ describe("AgentFold CLI", () => {
     expect(captured.stdout()).toContain("Usage: b1");
     expect(captured.stdout()).toContain("doctor");
     expect(captured.stdout()).toContain("init");
+    expect(captured.stdout()).toContain("migrate");
     expect(captured.stdout()).toContain("start");
     expect(captured.stdout()).toContain("report");
     expect(captured.stdout()).toContain("checkpoint");
@@ -133,8 +134,8 @@ describe("AgentFold CLI", () => {
 
     expect(exitCode).toBe(0);
     expect(captured.stdout()).toContain("Dry run complete. No files were written.");
-    expect(captured.stdout()).toContain(".agentfold/config.yaml");
-    await expect(fileSystem.exists(path.join(fixture, ".agentfold"))).resolves.toBe(false);
+    expect(captured.stdout()).toContain(".briefonce/config.yaml");
+    await expect(fileSystem.exists(path.join(fixture, ".briefonce"))).resolves.toBe(false);
   });
 
   it("initializes non-interactively with --yes and does not overwrite existing instructions", async () => {
@@ -155,15 +156,15 @@ describe("AgentFold CLI", () => {
 
     expect(exitCode).toBe(0);
     await expect(
-      fileSystem.exists(path.join(fixture, ".agentfold", "manifest.json")),
+      fileSystem.exists(path.join(fixture, ".briefonce", "manifest.json")),
     ).resolves.toBe(true);
     await expect(fileSystem.readText(path.join(fixture, "AGENTS.md"))).resolves.toBe("# Keep me\n");
 
-    const configBefore = await fileSystem.readText(path.join(fixture, ".agentfold", "config.yaml"));
+    const configBefore = await fileSystem.readText(path.join(fixture, ".briefonce", "config.yaml"));
     const secondExitCode = await runCli(["node", "agentfold", "init", "--yes"], options);
     expect(secondExitCode).toBe(0);
     await expect(
-      fileSystem.readText(path.join(fixture, ".agentfold", "config.yaml")),
+      fileSystem.readText(path.join(fixture, ".briefonce", "config.yaml")),
     ).resolves.toBe(configBefore);
   });
 
@@ -181,6 +182,6 @@ describe("AgentFold CLI", () => {
 
     expect(exitCode).toBe(6);
     expect(captured.stdout()).toContain("requires an existing Git repository");
-    await expect(fileSystem.exists(path.join(fixture, ".agentfold"))).resolves.toBe(false);
+    await expect(fileSystem.exists(path.join(fixture, ".briefonce"))).resolves.toBe(false);
   });
 });

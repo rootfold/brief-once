@@ -13,6 +13,7 @@ import { registerDoctorCommand } from "./commands/doctor.js";
 import { registerFinishCommand } from "./commands/finish.js";
 import { registerInitCommand } from "./commands/init.js";
 import { registerMcpCommand } from "./commands/mcp.js";
+import { registerMigrateCommand } from "./commands/migrate.js";
 import { registerReportCommand } from "./commands/report.js";
 import { registerResumeCommand } from "./commands/resume.js";
 import { registerStartCommand } from "./commands/start.js";
@@ -61,6 +62,7 @@ export function createProgram(options: CreateProgramOptions): Command {
     });
 
   registerDoctorCommand(program, options, options.output);
+  registerMigrateCommand(program, options, options.output);
   registerInitCommand(
     program,
     {

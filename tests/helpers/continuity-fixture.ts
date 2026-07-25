@@ -120,7 +120,7 @@ export async function createContinuityFixture(
   );
 
   if (options.visibility === "tracked") {
-    const configPath = path.join(root, ".agentfold", "config.yaml");
+    const configPath = path.join(root, ".briefonce", "config.yaml");
     const config = parseConfig({
       version: 1,
       project: { name: path.basename(root), summary: "" },

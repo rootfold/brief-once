@@ -50,14 +50,14 @@ async function harness(stdin = "") {
 describe("agentfold finish CLI", () => {
   it("previews by default and with --dry-run without writing", async () => {
     const fixture = await harness();
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const before = await fixture.fileSystem.readText(statePath);
 
     expect(await runCli(["node", "agentfold", "finish"], fixture.options)).toBe(0);
     expect(await runCli(["node", "agentfold", "finish", "--dry-run"], fixture.options)).toBe(0);
     await expect(fixture.fileSystem.readText(statePath)).resolves.toBe(before);
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "history")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "history")),
     ).resolves.toBe(false);
     expect(fixture.captured.stdout()).toContain("--yes");
     expect(fixture.captured.stdout()).toContain("Dry run complete");
@@ -80,11 +80,11 @@ describe("agentfold finish CLI", () => {
 
     expect(exitCode).toBe(0);
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "current.md")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "current.md")),
     ).resolves.toBe(false);
     const archive = path.join(
       fixture.root,
-      ".agentfold",
+      ".briefonce",
       "state",
       "completed",
       "AF-20260721-001.md",
@@ -94,7 +94,7 @@ describe("agentfold finish CLI", () => {
       summary: "Completed the CLI task.",
       finalCheckpointId: "CP-001",
     });
-    expect(fixture.captured.stdout()).toContain("Removed .agentfold/state/current.md");
+    expect(fixture.captured.stdout()).toContain("Removed .briefonce/state/current.md");
   });
 
   it("returns safe errors for invalid JSON and a repeated finish", async () => {

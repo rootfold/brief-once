@@ -132,7 +132,7 @@ describe("resume CLI stdout", () => {
   it("prints pure Markdown by default and leaves state and history byte-for-byte unchanged", async () => {
     const fixture = await createResumeFixture(temporaryDirectories);
     const captured = captureOutput();
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const historyPath = checkpointPath(fixture.root, fixture.checkpoint.taskId, "CP-001");
     const stateBefore = await fixture.fileSystem.readText(statePath);
     const historyBefore = await fixture.fileSystem.readText(historyPath);
@@ -354,7 +354,7 @@ describe("resume CLI failure and output behavior", () => {
 
   it("atomically creates parent directories, prints success, and never overwrites", async () => {
     const fixture = await createResumeFixture(temporaryDirectories);
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const historyPath = checkpointPath(fixture.root, fixture.checkpoint.taskId, "CP-001");
     const stateBefore = await fixture.fileSystem.readText(statePath);
     const historyBefore = await fixture.fileSystem.readText(historyPath);

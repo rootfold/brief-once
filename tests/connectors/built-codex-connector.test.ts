@@ -67,7 +67,7 @@ async function initializedRepository(): Promise<string> {
   });
   if (plan.status !== "ready") throw new Error("Expected initialized Codex fixture");
   await commitInitialization(plan, new AtomicInitializationWriter(fileSystem, () => ".codex-init"));
-  const configPath = path.join(root, ".agentfold", "config.yaml");
+  const configPath = path.join(root, ".briefonce", "config.yaml");
   const config = parseConfig({
     version: 1,
     project: { name: path.basename(root), summary: "" },

@@ -148,7 +148,7 @@ describe("AgentFold MCP server", () => {
       await expect(running).resolves.toBe(0);
       expect(
         await fixture.fileSystem.exists(
-          path.join(fixture.root, ".agentfold", "state", "current.md"),
+          path.join(fixture.root, ".briefonce", "state", "current.md"),
         ),
       ).toBe(false);
       await client.close();

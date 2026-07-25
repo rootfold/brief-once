@@ -8,13 +8,13 @@ import type { FileSystem } from "../filesystem/filesystem.js";
 import type { GitInspector, GitWorkingFacts } from "../git/git-inspector.js";
 import type { GitRepositoryLocator } from "../git/git-repository-locator.js";
 import { portablePath } from "../initialization/paths.js";
+import {
+  projectStorageAbsolutePath,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 import { activeTaskSchema } from "./active-state-schema.js";
 import { canonicalContextFailureExitCode } from "./context-requirement.js";
-import {
-  activeStateDirectoryRelativePath,
-  activeStateRelativePath,
-  loadActiveState,
-} from "./load-active-state.js";
+import { activeStateDirectoryRelativePathFor, loadActiveState } from "./load-active-state.js";
 import { serializeActiveState } from "./serialize-active-state.js";
 import { generateTaskId } from "./task-id.js";
 import type { ActiveTask } from "./types.js";
@@ -86,10 +86,11 @@ function errorMessage(error: unknown): string {
 async function existingHistoryTaskIds(
   fileSystem: FileSystem,
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory,
 ): Promise<readonly string[]> {
   const taskIds: string[] = [];
   for (const leaf of ["history", "completed"] as const) {
-    const directory = path.join(repositoryRoot, ".agentfold", "state", leaf);
+    const directory = projectStorageAbsolutePath(repositoryRoot, storageDirectory, `state/${leaf}`);
     if ((await fileSystem.entryType(directory)) !== "directory") continue;
     const [realRoot, realDirectory] = await Promise.all([
       fileSystem.realPath(repositoryRoot),
@@ -173,7 +174,13 @@ export async function prepareTaskStart(
   }
 
   const repositoryRoot = contextResult.repositoryRoot;
-  const loadedState = await loadActiveState(dependencies.fileSystem, repositoryRoot);
+  const storageDirectory = contextResult.context.storage.directory;
+  const stateDirectoryRelativePath = activeStateDirectoryRelativePathFor(storageDirectory);
+  const loadedState = await loadActiveState(
+    dependencies.fileSystem,
+    repositoryRoot,
+    storageDirectory,
+  );
   if (loadedState.status === "success") {
     return terminal(
       "conflict",
@@ -199,7 +206,7 @@ export async function prepareTaskStart(
     const now = (dependencies.now ?? (() => new Date()))();
     const [gitFacts, historyTaskIds] = await Promise.all([
       dependencies.gitInspector.readWorkingFacts(repositoryRoot),
-      existingHistoryTaskIds(dependencies.fileSystem, repositoryRoot),
+      existingHistoryTaskIds(dependencies.fileSystem, repositoryRoot, storageDirectory),
     ]);
     const workingDirectory =
       dependencies.startDirectory ?? dependencies.fileSystem.currentWorkingDirectory();
@@ -249,16 +256,13 @@ export async function prepareTaskStart(
 
     if (
       contextResult.context.state.visibility === "local" &&
-      !(await dependencies.gitInspector.isPathIgnored(
-        repositoryRoot,
-        activeStateDirectoryRelativePath,
-      ))
+      !(await dependencies.gitInspector.isPathIgnored(repositoryRoot, stateDirectoryRelativePath))
     ) {
       diagnostics.push({
         code: "AFS005",
         severity: "warning",
         message: "Local active state is not ignored by Git.",
-        suggestion: "Add only .agentfold/state/ to .gitignore; BriefOnce did not edit it.",
+        suggestion: `Add only ${stateDirectoryRelativePath} to .gitignore; BriefOnce did not edit it.`,
       });
     }
 
@@ -266,7 +270,7 @@ export async function prepareTaskStart(
       status: "ready",
       exitCode: 0,
       repositoryRoot,
-      statePath: path.join(repositoryRoot, ".agentfold", "state", "current.md"),
+      statePath: projectStorageAbsolutePath(repositoryRoot, storageDirectory, "state/current.md"),
       visibility: contextResult.context.state.visibility,
       state,
       serializedState: serializeActiveState(state),
@@ -304,7 +308,7 @@ export async function commitTaskStart(
     {
       code: "AFS007",
       severity: "success",
-      message: `Created ${activeStateRelativePath}`,
+      message: `Created ${portablePath(path.relative(plan.repositoryRoot, plan.statePath))}`,
     },
   ];
 }

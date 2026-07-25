@@ -130,7 +130,7 @@ describe("MCP dynamic workspace resolution", () => {
     );
     expect(await outsideResolver.resolve()).toMatchObject({ status: "error" });
 
-    await fixture.fileSystem.remove(path.join(fixture.root, ".agentfold", "config.yaml"));
+    await fixture.fileSystem.remove(path.join(fixture.root, ".briefonce", "config.yaml"));
     const invalid = new McpWorkspaceResolver({
       mode: "roots",
       fileSystem: fixture.fileSystem,

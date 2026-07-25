@@ -78,7 +78,7 @@ describe("task finish preparation and commit", () => {
       completed: ["Implemented callback"],
       validation: [{ command: "pnpm test", status: "passed", summary: "All tests passed" }],
     });
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const before = await fixture.fileSystem.readText(statePath);
 
     const plan = await prepareTaskFinish(dependencies(fixture), {
@@ -165,7 +165,7 @@ describe("task finish preparation and commit", () => {
 
   it("rejects private reasoning and leaves active state byte-for-byte unchanged", async () => {
     const fixture = await activeFixture("agentfold-finish-private-");
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const before = await fixture.fileSystem.readText(statePath);
     const plan = await prepareTaskFinish(dependencies(fixture), {
       completion: { summary: "Done", chainOfThought: "private" },
@@ -207,7 +207,7 @@ describe("task finish preparation and commit", () => {
     const collisionFixture = await activeFixture("agentfold-finish-collision-");
     const collisionPath = path.join(
       collisionFixture.root,
-      ".agentfold",
+      ".briefonce",
       "state",
       "completed",
       `${collisionFixture.taskId}.md`,

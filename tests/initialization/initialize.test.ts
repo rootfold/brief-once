@@ -137,7 +137,7 @@ class FailingWriteFileSystem implements FileSystem {
 
 describe("safe AgentFold initialization", () => {
   it("normalizes Windows-style paths for portable metadata", () => {
-    expect(portablePath(".agentfold\\context\\project.md")).toBe(".agentfold/context/project.md");
+    expect(portablePath(".briefonce\\context\\project.md")).toBe(".briefonce/context/project.md");
   });
 
   it("prepares initialization from a nested directory with spaces", async () => {
@@ -167,7 +167,7 @@ describe("safe AgentFold initialization", () => {
     expect(plan.status).toBe("not-git");
     expect(plan.exitCode).toBe(6);
     await expect(
-      new NodeFileSystem(() => root).exists(path.join(root, ".agentfold")),
+      new NodeFileSystem(() => root).exists(path.join(root, ".briefonce")),
     ).resolves.toBe(false);
   });
 
@@ -190,11 +190,11 @@ describe("safe AgentFold initialization", () => {
 
     for (const relativePath of initializationFilePaths) {
       await expect(
-        fileSystem.exists(path.join(root, ".agentfold", ...relativePath.split("/"))),
+        fileSystem.exists(path.join(root, ".briefonce", ...relativePath.split("/"))),
       ).resolves.toBe(true);
     }
 
-    const config = await loadConfig(fileSystem, path.join(root, ".agentfold", "config.yaml"));
+    const config = await loadConfig(fileSystem, path.join(root, ".briefonce", "config.yaml"));
     expect(config.project.name).toBe(path.basename(root));
     expect(config.package_manager).toBe("pnpm");
     expect(config.paths).toEqual({
@@ -205,11 +205,11 @@ describe("safe AgentFold initialization", () => {
     });
     expect(await fileSystem.readText(agentsPath)).toBe("# Existing instructions\n");
     expect(
-      await fileSystem.readText(path.join(root, ".agentfold", "context", "project.md")),
+      await fileSystem.readText(path.join(root, ".briefonce", "context", "project.md")),
     ).toContain("## Detected stack");
 
     const manifestInput: unknown = JSON.parse(
-      await fileSystem.readText(path.join(root, ".agentfold", "manifest.json")),
+      await fileSystem.readText(path.join(root, ".briefonce", "manifest.json")),
     );
     expect(manifestInput).toMatchObject({
       schemaVersion: 1,
@@ -243,7 +243,7 @@ describe("safe AgentFold initialization", () => {
 
   it("reports a partial installation as a conflict", async () => {
     const root = await repositoryFixture();
-    const context = path.join(root, ".agentfold", "context");
+    const context = path.join(root, ".briefonce", "context");
     await mkdir(context, { recursive: true });
     await writeFile(path.join(context, "project.md"), "# Partial\n", "utf8");
 
@@ -251,13 +251,13 @@ describe("safe AgentFold initialization", () => {
 
     expect(plan.status).toBe("conflict");
     expect(plan.exitCode).toBe(5);
-    expect(plan.inspection?.presentFiles).toEqual([".agentfold/context/project.md"]);
-    expect(plan.inspection?.missingFiles).toContain(".agentfold/config.yaml");
+    expect(plan.inspection?.presentFiles).toEqual([".briefonce/context/project.md"]);
+    expect(plan.inspection?.missingFiles).toContain(".briefonce/config.yaml");
   });
 
   it("treats an existing config as initialized and never rewrites it", async () => {
     const root = await repositoryFixture();
-    const agentFold = path.join(root, ".agentfold");
+    const agentFold = path.join(root, ".briefonce");
     const configPath = path.join(agentFold, "config.yaml");
     const content = "# User-owned existing configuration\nversion: 1\n";
     await mkdir(agentFold);
@@ -267,8 +267,8 @@ describe("safe AgentFold initialization", () => {
 
     expect(plan.status).toBe("already-initialized");
     expect(plan.exitCode).toBe(0);
-    expect(plan.inspection?.presentFiles).toEqual([".agentfold/config.yaml"]);
-    expect(plan.inspection?.missingFiles).toContain(".agentfold/manifest.json");
+    expect(plan.inspection?.presentFiles).toEqual([".briefonce/config.yaml"]);
+    expect(plan.inspection?.missingFiles).toContain(".briefonce/manifest.json");
     await expect(new NodeFileSystem(() => root).readText(configPath)).resolves.toBe(content);
   });
 
@@ -277,11 +277,11 @@ describe("safe AgentFold initialization", () => {
     const baseFileSystem = new NodeFileSystem(() => root);
     const plan = readyPlan(await prepareInitialization(dependencies(root)));
     const failingFileSystem = new FailingWriteFileSystem(baseFileSystem, "commands.md");
-    const writer = new AtomicInitializationWriter(failingFileSystem, () => ".agentfold.init-test");
+    const writer = new AtomicInitializationWriter(failingFileSystem, () => ".briefonce.init-test");
 
     await expect(commitInitialization(plan, writer)).rejects.toThrow("Simulated write failure");
-    await expect(baseFileSystem.exists(path.join(root, ".agentfold"))).resolves.toBe(false);
-    await expect(baseFileSystem.exists(path.join(root, ".agentfold.init-test"))).resolves.toBe(
+    await expect(baseFileSystem.exists(path.join(root, ".briefonce"))).resolves.toBe(false);
+    await expect(baseFileSystem.exists(path.join(root, ".briefonce.init-test"))).resolves.toBe(
       false,
     );
   });

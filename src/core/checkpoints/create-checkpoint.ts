@@ -13,13 +13,15 @@ import type { GitInspector } from "../git/git-inspector.js";
 import type { GitRepositoryLocator } from "../git/git-repository-locator.js";
 import { portablePath } from "../initialization/paths.js";
 import { activeTaskContainsSecretLikeText } from "../reports/redact-secrets.js";
+import {
+  preferredProjectDirectory,
+  projectStorageAbsolutePath,
+  projectStorageRelativePath,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 import { activeTaskSchema } from "../state/active-state-schema.js";
 import { canonicalContextFailureExitCode } from "../state/context-requirement.js";
-import {
-  activeStateDirectoryRelativePath,
-  activeStateRelativePath,
-  loadActiveState,
-} from "../state/load-active-state.js";
+import { loadActiveState } from "../state/load-active-state.js";
 import { serializeActiveState } from "../state/serialize-active-state.js";
 import type { ActiveTask } from "../state/types.js";
 import { agentNameSchema } from "../state/value-schemas.js";
@@ -32,7 +34,11 @@ import {
 import { serializeCheckpoint } from "./serialize-checkpoint.js";
 import type { Checkpoint } from "./types.js";
 
-export const checkpointHistoryRelativePath = ".agentfold/state/history";
+export const checkpointHistoryRelativePath = ".briefonce/state/history";
+
+export function checkpointHistoryRelativePathFor(directory: ProjectStorageDirectory): string {
+  return projectStorageRelativePath(directory, "state/history");
+}
 
 interface BaseCheckpointPlan {
   readonly diagnostics: readonly Diagnostic[];
@@ -117,8 +123,13 @@ function terminal(
 export async function listCheckpointHistoryFileNames(
   fileSystem: FileSystem,
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory = preferredProjectDirectory,
 ): Promise<readonly string[]> {
-  const historyDirectory = path.join(repositoryRoot, ...checkpointHistoryRelativePath.split("/"));
+  const historyDirectory = projectStorageAbsolutePath(
+    repositoryRoot,
+    storageDirectory,
+    "state/history",
+  );
   const entryType = await fileSystem.entryType(historyDirectory);
   if (entryType === undefined) {
     const [realRoot, realStateDirectory] = await Promise.all([
@@ -214,7 +225,13 @@ export async function prepareCheckpoint(
   }
 
   const repositoryRoot = contextResult.repositoryRoot;
-  const loadedState = await loadActiveState(dependencies.fileSystem, repositoryRoot);
+  const storageDirectory = contextResult.context.storage.directory;
+  const historyRelativePath = checkpointHistoryRelativePathFor(storageDirectory);
+  const loadedState = await loadActiveState(
+    dependencies.fileSystem,
+    repositoryRoot,
+    storageDirectory,
+  );
   if (loadedState.status === "missing") {
     return terminal(
       "missing-state",
@@ -264,7 +281,7 @@ export async function prepareCheckpoint(
 
   try {
     const [historyEntries, gitObservation] = await Promise.all([
-      listCheckpointHistoryFileNames(dependencies.fileSystem, repositoryRoot),
+      listCheckpointHistoryFileNames(dependencies.fileSystem, repositoryRoot, storageDirectory),
       dependencies.gitInspector.readCheckpointFacts(repositoryRoot, {
         startingCommit: loadedState.state.startingCommit,
         startedAt: loadedState.state.startedAt,
@@ -300,14 +317,14 @@ export async function prepareCheckpoint(
       if (
         !(await dependencies.gitInspector.isPathIgnored(
           repositoryRoot,
-          activeStateDirectoryRelativePath,
+          loadedState.stateDirectoryRelativePath,
         ))
       ) {
         diagnostics.push({
           code: "AFCP009",
           severity: "warning",
           message: "Local checkpoint state is not ignored by Git.",
-          suggestion: "Add only .agentfold/state/ to .gitignore; BriefOnce did not edit it.",
+          suggestion: `Add only ${loadedState.stateDirectoryRelativePath} to .gitignore; BriefOnce did not edit it.`,
         });
       }
     }
@@ -318,7 +335,7 @@ export async function prepareCheckpoint(
     ) {
       const latestHistoryPath = path.join(
         repositoryRoot,
-        ...checkpointHistoryRelativePath.split("/"),
+        ...historyRelativePath.split("/"),
         `${loadedState.state.taskId}-${loadedState.state.checkpointHistory.latestCheckpointId}.md`,
       );
       if (await dependencies.fileSystem.exists(latestHistoryPath)) {
@@ -341,7 +358,7 @@ export async function prepareCheckpoint(
 
     const historyPath = path.join(
       repositoryRoot,
-      ...checkpointHistoryRelativePath.split("/"),
+      ...historyRelativePath.split("/"),
       allocated.fileName,
     );
     if (await dependencies.fileSystem.exists(historyPath)) {
@@ -386,7 +403,7 @@ export async function prepareCheckpoint(
       checkpoint,
       updatedState,
       historyPath,
-      statePath: path.join(repositoryRoot, ...activeStateRelativePath.split("/")),
+      statePath: loadedState.statePath,
       serializedCheckpoint: serializeCheckpoint(checkpoint),
       serializedState: serializeActiveState(updatedState),
       diagnostics,
@@ -431,7 +448,7 @@ export async function prepareCheckpoint(
             code: "AFCP010",
             severity: "error",
             message: "Checkpoint history path conflicts with an existing file.",
-            suggestion: "Review .agentfold/state/history; nothing was written.",
+            suggestion: `Review ${historyRelativePath}; nothing was written.`,
           },
         ],
         repositoryRoot,
@@ -499,7 +516,7 @@ export async function commitCheckpoint(
             code: "AFCP013",
             severity: "error",
             message: "Active-state update and checkpoint rollback both failed.",
-            suggestion: `Remove only ${portablePath(path.relative(plan.repositoryRoot, plan.historyPath))}, verify ${activeStateRelativePath}, and retry.`,
+            suggestion: `Remove only ${portablePath(path.relative(plan.repositoryRoot, plan.historyPath))}, verify ${portablePath(path.relative(plan.repositoryRoot, plan.statePath))}, and retry.`,
           },
         ],
       };
@@ -532,7 +549,7 @@ export async function commitCheckpoint(
       {
         code: "AFCP016",
         severity: "success",
-        message: `Updated ${activeStateRelativePath}`,
+        message: `Updated ${portablePath(path.relative(plan.repositoryRoot, plan.statePath))}`,
       },
     ],
   };

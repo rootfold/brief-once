@@ -142,7 +142,7 @@ describe("persistent service-restart recovery", () => {
       expect(active.state.checkpointHistory.count).toBe(1);
     }
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "completed")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "completed")),
     ).resolves.toBe(false);
 
     const store = new PersistentReliabilityEventStore({
@@ -230,7 +230,7 @@ describe("persistent service-restart recovery", () => {
     await second.recoverStaleSessions();
     expect(second.sessions.get("session-no-task")?.state).toBe("closed");
     await expect(
-      fixture.fileSystem.exists(path.join(fixture.root, ".agentfold", "state", "history")),
+      fixture.fileSystem.exists(path.join(fixture.root, ".briefonce", "state", "history")),
     ).resolves.toBe(false);
     const store = new PersistentReliabilityEventStore({
       fileSystem: fixture.fileSystem,
@@ -288,7 +288,7 @@ describe("persistent service-restart recovery", () => {
       title: "Original interrupted task",
     });
     const originalTaskId = String(data(started).taskId);
-    const currentPath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const currentPath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const replacementTaskId = "AF-20260724-999";
     await writeFile(
       currentPath,

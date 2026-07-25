@@ -168,11 +168,17 @@ export async function prepareResume(
     );
   }
 
-  const loadedState = await loadActiveState(dependencies.fileSystem, contextResult.repositoryRoot);
+  const storageDirectory = contextResult.context.storage.directory;
+  const loadedState = await loadActiveState(
+    dependencies.fileSystem,
+    contextResult.repositoryRoot,
+    storageDirectory,
+  );
   if (loadedState.status === "missing") {
     const completed = await loadLatestCompletedTask(
       dependencies.fileSystem,
       contextResult.repositoryRoot,
+      storageDirectory,
     );
     if (completed.status === "error") {
       return terminal("filesystem-error", 1, completed.diagnostics);
@@ -209,6 +215,7 @@ export async function prepareResume(
     contextResult.repositoryRoot,
     loadedState.state,
     input.checkpoint,
+    storageDirectory,
   );
   if (resolvedCheckpoint.status === "error") {
     return terminal(

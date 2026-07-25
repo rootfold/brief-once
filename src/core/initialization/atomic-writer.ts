@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 
 import type { FileSystem } from "../filesystem/filesystem.js";
-import { agentFoldDirectory } from "./paths.js";
+import { briefOnceDirectory } from "./paths.js";
 
 export interface InitializationFile {
   readonly relativePath: string;
@@ -33,11 +33,11 @@ function validateRelativePath(relativePath: string): readonly string[] {
 export class AtomicInitializationWriter {
   constructor(
     private readonly fileSystem: FileSystem,
-    private readonly temporaryName: () => string = () => `.agentfold.init-${randomUUID()}`,
+    private readonly temporaryName: () => string = () => `.briefonce.init-${randomUUID()}`,
   ) {}
 
   async write(repositoryRoot: string, files: readonly InitializationFile[]): Promise<void> {
-    const destination = path.join(repositoryRoot, agentFoldDirectory);
+    const destination = path.join(repositoryRoot, briefOnceDirectory);
 
     if (await this.fileSystem.exists(destination)) {
       throw new InitializationConflictError(destination);

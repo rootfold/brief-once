@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { agentFoldPath } from "./paths.js";
+import { briefOncePath } from "./paths.js";
 
 export interface AgentFoldManifest {
   readonly schemaVersion: 1;
@@ -23,7 +23,7 @@ export function createManifest(
   const paths = Object.keys(generatedFiles).sort((left, right) => left.localeCompare(right));
   const hashes = Object.fromEntries(
     paths.map((relativePath) => [
-      agentFoldPath(relativePath),
+      briefOncePath(relativePath),
       sha256(generatedFiles[relativePath] ?? ""),
     ]),
   );

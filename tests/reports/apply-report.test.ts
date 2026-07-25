@@ -250,7 +250,7 @@ describe("prepareAgentReport", () => {
 
   it("preserves previous state when the report atomic rename fails", async () => {
     const fixture = await activeFixture();
-    const statePath = path.join(fixture.root, ".agentfold", "state", "current.md");
+    const statePath = path.join(fixture.root, ".briefonce", "state", "current.md");
     const before = await fixture.fileSystem.readText(statePath);
     const plan = await prepareAgentReport(dependencies(fixture), {
       json: JSON.stringify({ completed: ["Would be new"] }),

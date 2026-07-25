@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { assembleCheckpoint } from "../checkpoints/assemble-checkpoint.js";
 import {
-  checkpointHistoryRelativePath,
+  checkpointHistoryRelativePathFor,
   listCheckpointHistoryFileNames,
 } from "../checkpoints/create-checkpoint.js";
 import {
@@ -25,6 +25,10 @@ import type { FileSystem } from "../filesystem/filesystem.js";
 import type { GitInspector } from "../git/git-inspector.js";
 import type { GitRepositoryLocator } from "../git/git-repository-locator.js";
 import { portablePath } from "../initialization/paths.js";
+import {
+  projectStorageAbsolutePath,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 import { mergeAgentReport } from "../reports/merge-report.js";
 import {
   activeTaskContainsSecretLikeText,
@@ -36,7 +40,7 @@ import {
 import type { AgentReport } from "../reports/types.js";
 import { activeTaskSchema } from "../state/active-state-schema.js";
 import { canonicalContextFailureExitCode } from "../state/context-requirement.js";
-import { activeStateRelativePath, loadActiveState } from "../state/load-active-state.js";
+import { loadActiveState } from "../state/load-active-state.js";
 import type { ActiveTask } from "../state/types.js";
 import { agentNameSchema } from "../state/value-schemas.js";
 import {
@@ -45,7 +49,7 @@ import {
   type CompletionInput,
 } from "./completion-input-schema.js";
 import { completedTaskSchema } from "./completed-task-schema.js";
-import { completedTasksRelativePath } from "./load-completed-task.js";
+import { completedTasksRelativePathFor } from "./load-completed-task.js";
 import { serializeCompletedTask } from "./serialize-completed-task.js";
 import type { CompletedTask } from "./types.js";
 
@@ -307,12 +311,17 @@ async function validateManagedDirectory(
 async function hasFinalCheckpoint(
   fileSystem: FileSystem,
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory,
   taskId: string,
   entries: readonly string[],
 ): Promise<boolean> {
   for (const entry of entries) {
     if (checkpointSequenceFromFileName(taskId, entry) === null) continue;
-    const candidate = path.join(repositoryRoot, ...checkpointHistoryRelativePath.split("/"), entry);
+    const candidate = projectStorageAbsolutePath(
+      repositoryRoot,
+      storageDirectory,
+      `state/history/${entry}`,
+    );
     const realCandidate = await fileSystem.realPath(candidate);
     const realRoot = await fileSystem.realPath(repositoryRoot);
     if (!isPathInside(realRoot, realCandidate)) {
@@ -345,7 +354,10 @@ export async function prepareTaskFinish(
     );
   }
   const repositoryRoot = context.repositoryRoot;
-  const loaded = await loadActiveState(dependencies.fileSystem, repositoryRoot);
+  const storageDirectory = context.context.storage.directory;
+  const historyRelativePath = checkpointHistoryRelativePathFor(storageDirectory);
+  const completedRelativePath = completedTasksRelativePathFor(storageDirectory);
+  const loaded = await loadActiveState(dependencies.fileSystem, repositoryRoot, storageDirectory);
   if (loaded.status === "missing") {
     return terminal(
       "missing-state",
@@ -430,10 +442,10 @@ export async function prepareTaskFinish(
   try {
     const timestamp = (dependencies.now ?? (() => new Date()))().toISOString();
     const finishingAgent = completion.agent ?? "agentfold-cli";
-    const statePath = path.join(repositoryRoot, ...activeStateRelativePath.split("/"));
+    const statePath = loaded.statePath;
     const originalStateSource = await dependencies.fileSystem.readText(statePath);
     const [historyEntries, gitObservation] = await Promise.all([
-      listCheckpointHistoryFileNames(dependencies.fileSystem, repositoryRoot),
+      listCheckpointHistoryFileNames(dependencies.fileSystem, repositoryRoot, storageDirectory),
       dependencies.gitInspector.readCheckpointFacts(repositoryRoot, {
         startingCommit: loaded.state.startingCommit,
         startedAt: loaded.state.startedAt,
@@ -443,6 +455,7 @@ export async function prepareTaskFinish(
       await hasFinalCheckpoint(
         dependencies.fileSystem,
         repositoryRoot,
+        storageDirectory,
         loaded.state.taskId,
         historyEntries,
       )
@@ -570,12 +583,12 @@ export async function prepareTaskFinish(
     }
     const historyPath = path.join(
       repositoryRoot,
-      ...checkpointHistoryRelativePath.split("/"),
+      ...historyRelativePath.split("/"),
       allocated.fileName,
     );
     const completedPath = path.join(
       repositoryRoot,
-      ...completedTasksRelativePath.split("/"),
+      ...completedRelativePath.split("/"),
       `${task.taskId}.md`,
     );
     await Promise.all([
@@ -782,7 +795,7 @@ export async function commitTaskFinish(
           "AFF022",
           "error",
           "Task finish did not complete; newly created finish artifacts were rolled back.",
-          `The active task remains at ${activeStateRelativePath}.`,
+          `The active task remains at ${portablePath(path.relative(plan.repositoryRoot, plan.statePath))}.`,
         ),
       ],
     };
@@ -803,7 +816,11 @@ export async function commitTaskFinish(
         "success",
         `Created ${portablePath(path.relative(plan.repositoryRoot, plan.completedPath))}`,
       ),
-      diagnostic("AFF025", "success", `Removed ${activeStateRelativePath}`),
+      diagnostic(
+        "AFF025",
+        "success",
+        `Removed ${portablePath(path.relative(plan.repositoryRoot, plan.statePath))}`,
+      ),
     ],
   };
 }

@@ -3,6 +3,10 @@ import { resolveAutomationPolicy } from "../config/automation-policy.js";
 import { resolveReliabilityPolicy } from "../config/reliability-policy.js";
 import type { Diagnostic } from "../diagnostics/diagnostic.js";
 import type { CanonicalContextDocuments, CanonicalProjectContext } from "./types.js";
+import {
+  legacyProjectDirectory,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
 
 function enabledAdapters(
   adapters: AgentFoldConfig["adapters"],
@@ -14,6 +18,7 @@ function enabledAdapters(
 
 export function resolveCanonicalContext(
   repositoryRoot: string,
+  storageDirectory: ProjectStorageDirectory,
   config: AgentFoldConfig,
   context: CanonicalContextDocuments,
   diagnostics: readonly Diagnostic[],
@@ -21,6 +26,10 @@ export function resolveCanonicalContext(
   return {
     schemaVersion: config.version,
     repositoryRoot,
+    storage: {
+      directory: storageDirectory,
+      legacy: storageDirectory === legacyProjectDirectory,
+    },
     project: config.project,
     runtime: config.runtime,
     ...(config.package_manager === undefined ? {} : { packageManager: config.package_manager }),

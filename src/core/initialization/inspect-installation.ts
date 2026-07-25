@@ -1,7 +1,14 @@
 import path from "node:path";
 
 import type { FileSystem } from "../filesystem/filesystem.js";
-import { agentFoldDirectory, agentFoldPath, initializationFilePaths } from "./paths.js";
+import {
+  preferredProjectDirectory,
+  projectStorageAbsolutePath,
+  projectStorageRelativePath,
+  resolveProjectStorage,
+  type ProjectStorageDirectory,
+} from "../storage/project-storage.js";
+import { initializationFilePaths } from "./paths.js";
 
 const externalInstructionFiles = [
   "AGENTS.md",
@@ -14,6 +21,9 @@ const externalInstructionFiles = [
 export interface InstallationInspection {
   readonly directoryExists: boolean;
   readonly configExists: boolean;
+  readonly storageDirectory: ProjectStorageDirectory;
+  readonly legacyStorage: boolean;
+  readonly storageConflict: boolean;
   readonly presentFiles: readonly string[];
   readonly missingFiles: readonly string[];
   readonly externalInstructionFiles: readonly string[];
@@ -46,20 +56,35 @@ export async function inspectInstallation(
   fileSystem: FileSystem,
   repositoryRoot: string,
 ): Promise<InstallationInspection> {
-  const directoryExists =
-    (await fileSystem.entryType(path.join(repositoryRoot, agentFoldDirectory))) !== undefined;
+  const storage = await resolveProjectStorage(fileSystem, repositoryRoot);
+  const storageDirectory =
+    storage.status === "selected" ? storage.selected.directory : preferredProjectDirectory;
+  const directories =
+    storage.status === "conflict"
+      ? ([storage.preferred.directory, storage.legacy.directory] as const)
+      : ([storageDirectory] as const);
   const expectedFiles = await Promise.all(
-    initializationFilePaths.map(async (relativePath) => ({
-      path: agentFoldPath(relativePath),
-      exists: await fileSystem.exists(path.join(repositoryRoot, agentFoldDirectory, relativePath)),
-    })),
+    directories.flatMap((directory) =>
+      initializationFilePaths.map(async (relativePath) => ({
+        path: projectStorageRelativePath(directory, relativePath),
+        exists: await fileSystem.exists(
+          projectStorageAbsolutePath(repositoryRoot, directory, relativePath),
+        ),
+      })),
+    ),
   );
-  const presentFiles = expectedFiles.filter((file) => file.exists).map((file) => file.path);
-  const missingFiles = expectedFiles.filter((file) => !file.exists).map((file) => file.path);
+  const resolvedFiles = await Promise.all(expectedFiles);
+  const presentFiles = resolvedFiles.filter((file) => file.exists).map((file) => file.path);
+  const missingFiles = resolvedFiles.filter((file) => !file.exists).map((file) => file.path);
 
   return {
-    directoryExists,
-    configExists: presentFiles.includes(agentFoldPath("config.yaml")),
+    directoryExists: storage.status !== "absent",
+    configExists:
+      storage.status === "selected" &&
+      presentFiles.includes(projectStorageRelativePath(storage.selected.directory, "config.yaml")),
+    storageDirectory,
+    legacyStorage: storage.status === "selected" && storage.legacy,
+    storageConflict: storage.status === "conflict",
     presentFiles,
     missingFiles,
     externalInstructionFiles: await detectExternalInstructionFiles(fileSystem, repositoryRoot),

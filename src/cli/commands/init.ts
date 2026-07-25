@@ -13,7 +13,7 @@ import {
   prepareInitialization,
   type InitializationPlan,
 } from "../../core/initialization/initialize.js";
-import { agentFoldPath } from "../../core/initialization/paths.js";
+import { briefOncePath } from "../../core/initialization/paths.js";
 import type { RepositoryMetadata } from "../../core/scanners/types.js";
 import { productBrand } from "../../product-brand.js";
 import { CliCommandError } from "../command-error.js";
@@ -77,7 +77,7 @@ function writePlan(output: CliOutput, plan: InitializationPlan): void {
     }
     writeLine(output, "Files:");
     for (const file of plan.files) {
-      writeLine(output, `  - ${agentFoldPath(file.relativePath)}`);
+      writeLine(output, `  - ${briefOncePath(file.relativePath)}`);
     }
   }
 }

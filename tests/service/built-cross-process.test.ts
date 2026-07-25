@@ -77,7 +77,7 @@ async function createRepository(name: string): Promise<string> {
     plan,
     new AtomicInitializationWriter(fileSystem, () => ".service-init"),
   );
-  const configPath = path.join(root, ".agentfold", "config.yaml");
+  const configPath = path.join(root, ".briefonce", "config.yaml");
   const config = await loadConfig(fileSystem, configPath);
   await writeFile(
     configPath,
@@ -238,7 +238,7 @@ describe("built shared-service workflow", () => {
     const sessionC = String(data(openedC).sessionId);
     await codex.client.close();
     await new Promise((resolve) => setTimeout(resolve, 7_500));
-    const history = await readdir(path.join(repositoryA, ".agentfold", "state", "history"));
+    const history = await readdir(path.join(repositoryA, ".briefonce", "state", "history"));
     expect(history).toHaveLength(1);
 
     const independent = await openMcp(
@@ -400,10 +400,10 @@ describe("built shared-service workflow", () => {
       "Persisted semantic progress before termination",
     );
 
-    const history = await readdir(path.join(repository, ".agentfold", "state", "history"));
+    const history = await readdir(path.join(repository, ".briefonce", "state", "history"));
     expect(history).toHaveLength(1);
     const active = await readFile(
-      path.join(repository, ".agentfold", "state", "current.md"),
+      path.join(repository, ".briefonce", "state", "current.md"),
       "utf8",
     );
     expect(active).toContain(`task_id: ${taskId}`);
