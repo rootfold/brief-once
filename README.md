@@ -1,5 +1,5 @@
 # BriefOnce
- 
+
 ### Brief once. Continue with any agent.
 
 Codex starts the task. Antigravity continues it.
