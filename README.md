@@ -1,7 +1,5 @@
 # BriefOnce
 
-This is test to check pull request trigger.
-
 ### Brief once. Continue with any agent.
 
 Codex starts the task. Antigravity continues it.
